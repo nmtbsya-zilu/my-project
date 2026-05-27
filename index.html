@@ -392,6 +392,7 @@
     left: 0; top: 4px; bottom: 4px;
     width: 1px;
     background: var(--border);
+    pointer-events: none;
   }
   .tl-item {
     position: relative;
@@ -406,6 +407,7 @@
     border-radius: 50%;
     background: var(--cyan);
     box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+    pointer-events: none;
   }
   .tl-item .tl-date {
     font-size: 12px;
@@ -831,7 +833,7 @@
   <section id="experience" class="reveal"><div class="section-inner">
     <div class="section-label">02 · JOURNEY</div>
     <div class="section-title">教育 &amp; 竞赛经历</div>
-    <div class="about-card tilt-card">
+    <div class="about-card tilt-card" style="display:block;">
       <div class="timeline">
         <div class="tl-item">
           <div class="tl-date">2023 — 2027</div>
