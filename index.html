@@ -317,35 +317,39 @@ function draw() {
 }
 draw();
 
-// Scroll reveal cards
+// Scroll reveal cards - bidirectional
 const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  entries.forEach(e => { e.target.classList.toggle('visible', e.isIntersecting); });
 }, { threshold: 0.15 });
 document.querySelectorAll('.card').forEach(c => observer.observe(c));
-// Trigger first card immediately
-setTimeout(() => {
-  const first = document.querySelector('.card');
-  if (first) first.classList.add('visible');
-}, 200);
 
-// Counter animation
+// Counter animation - bidirectional
+const counterStates = new WeakMap();
 function animateCounter(el) {
   const to = parseInt(el.dataset.to), suf = el.dataset.suf || '';
   const dur = 1500, start = performance.now();
+  const state = { raf: 0 };
+  counterStates.set(el, state);
   function tick(now) {
     const p = Math.min((now - start) / dur, 1);
     const v = 1 - Math.pow(1 - p, 3);
     el.textContent = Math.round(v * to) + suf;
-    if (p < 1) requestAnimationFrame(tick);
+    if (p < 1) state.raf = requestAnimationFrame(tick);
   }
-  requestAnimationFrame(tick);
+  state.raf = requestAnimationFrame(tick);
+}
+function resetCounter(el) {
+  const s = counterStates.get(el);
+  if (s) { cancelAnimationFrame(s.raf); counterStates.delete(el); }
+  el.textContent = '0';
 }
 const co = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) { animateCounter(e.target); co.unobserve(e.target); } });
-}, { threshold: 0.6 });
+  entries.forEach(e => {
+    if (e.isIntersecting) animateCounter(e.target);
+    else resetCounter(e.target);
+  });
+}, { threshold: 0.5 });
 document.querySelectorAll('.num[data-to]').forEach(n => co.observe(n));
-// Fire first render
-setTimeout(() => document.querySelectorAll('.num[data-to]').forEach(n => animateCounter(n)), 600);
 
 // Ripple effect on buttons
 document.querySelectorAll('.btn,.tag').forEach(el => {
