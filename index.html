@@ -27,31 +27,39 @@
     overflow-x: hidden;
   }
 
-  /* Classical texture background */
+  /* Grid texture */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
     background-image:
-      linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
-    background-size: 80px 80px;
+      linear-gradient(rgba(6, 182, 212, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6, 182, 212, 0.025) 1px, transparent 1px);
+    background-size: 72px 72px;
     pointer-events: none;
     z-index: 0;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 25%, black 35%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 25%, black 35%, transparent 70%);
   }
 
-  /* Warm glow orb */
+  /* Dual glow orbs */
   body::after {
     content: "";
     position: fixed;
     width: 600px; height: 600px;
     border-radius: 50%;
-    filter: blur(180px);
-    background: #06b6d4;
-    opacity: 0.05;
-    top: -200px; left: -200px;
+    filter: blur(160px);
+    background: radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 70%);
+    top: -180px; left: -180px;
     pointer-events: none;
     z-index: 0;
+  }
+
+  /* Noise overlay for depth */
+  .noise-overlay {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    opacity: 0.018;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
   .container {
@@ -189,6 +197,12 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 40px;
+    transition: border-color 0.35s, box-shadow 0.35s;
+    position: relative;
+  }
+  .about-card:hover {
+    border-color: rgba(6,182,212,0.25);
+    box-shadow: 0 4px 40px rgba(6,182,212,0.04), inset 0 1px 0 rgba(255,255,255,0.02);
   }
   .about-text p {
     color: var(--text-muted);
@@ -271,6 +285,11 @@
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 40px;
+    transition: border-color 0.35s, box-shadow 0.35s;
+  }
+  .contact-card:hover {
+    border-color: rgba(6,182,212,0.2);
+    box-shadow: 0 4px 30px rgba(6,182,212,0.03);
   }
   .contact-card h3 {
     font-size: 18px;
@@ -665,15 +684,21 @@
 
   /* ── Section dot nav ── */
   .section-dots {
-    position: fixed; right: 20px; top: 50%; transform: translateY(-50%);
-    z-index: 99; display: flex; flex-direction: column; gap: 12px;
+    position: fixed; right: 24px; top: 50%; transform: translateY(-50%);
+    z-index: 99; display: flex; flex-direction: column; gap: 14px;
   }
   .section-dot {
-    width: 10px; height: 10px; border-radius: 50%;
-    background: var(--border); cursor: pointer;
-    transition: all 0.3s;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,0.08); cursor: pointer;
+    transition: all 0.35s; position: relative;
   }
-  .section-dot.active, .section-dot:hover { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+  .section-dot::before {
+    content: ''; position: absolute; inset: -4px; border-radius: 50%;
+    border: 1px solid transparent; transition: border-color 0.35s;
+  }
+  .section-dot.active { background: var(--cyan); box-shadow: 0 0 12px rgba(6,182,212,0.5); }
+  .section-dot.active::before { border-color: rgba(6,182,212,0.3); }
+  .section-dot:hover { background: var(--cyan); }
   @media (max-width: 768px) { .section-dots { display: none; } }
 
   /* ── Click burst ── */
@@ -693,6 +718,7 @@
 </head>
 <body>
 
+<div class="noise-overlay"></div>
 <div class="cursor-spotlight" id="spotlight"></div>
 <canvas id="particle-canvas"></canvas>
 <div id="progress-bar"></div>
@@ -1228,6 +1254,11 @@ document.addEventListener('mousemove', (e) => {
 const nav = document.querySelector('nav');
 window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// ── Stagger card reveals ──
+document.querySelectorAll('.reveal .about-card, .reveal .contact-card').forEach((card, i) => {
+  card.style.transitionDelay = `${i * 0.1}s`;
 });
 
 // ── Timeline staggered reveal ──
