@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人主页</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --border: #1e293b;
+    --text: #cbd5e1;
+    --text-muted: #64748b;
+    --heading: #f1f5f9;
+    --cyan: #06b6d4;
+    --purple: #7c3aed;
+    --gradient: linear-gradient(135deg, #06b6d4, #7c3aed);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orbs */
+  body::after {
+    content: "";
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    filter: blur(180px);
+    background: var(--cyan);
+    opacity: 0.05;
+    top: -200px; left: -200px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ── Navigation ── */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 0;
+  }
+  .logo {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--heading);
+    letter-spacing: -0.5px;
+  }
+  .logo span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--cyan); }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 80px 0 60px;
+    text-align: center;
+  }
+  .avatar {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: var(--gradient);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 28px;
+    box-shadow: 0 0 60px rgba(6, 182, 212, 0.25);
+    position: relative;
+  }
+  .avatar::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: var(--gradient);
+    z-index: -1;
+  }
+  .hero h1 {
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--heading);
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+  .hero .title {
+    font-size: 18px;
+    color: var(--cyan);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .hero .tagline {
+    font-size: 15px;
+    color: var(--text-muted);
+    max-width: 500px;
+    margin: 0 auto 32px;
+    line-height: 1.7;
+  }
+  .hero .stats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+  }
+  .hero .stat {
+    text-align: center;
+  }
+  .stat .num {
+    font-size: 28px;
+    font-weight: 700;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat .label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* ── Section ── */
+  section { padding: 60px 0; }
+  .section-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--cyan);
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+  .section-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--heading);
+    margin-bottom: 40px;
+    letter-spacing: -0.5px;
+  }
+
+  /* ── About Card ── */
+  .about-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .about-text p {
+    color: var(--text-muted);
+    line-height: 1.8;
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+  .about-text p:last-child { margin-bottom: 0; }
+  .about-info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .info-icon {
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    background: rgba(6, 182, 212, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .info-content .info-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+  .info-content .info-value {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* ── Skills ── */
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .skill-tag {
+    padding: 6px 16px;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    color: var(--text);
+    background: rgba(255,255,255,0.02);
+    transition: all 0.2s;
+  }
+  .skill-tag:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: rgba(6, 182, 212, 0.06);
+  }
+  .skill-tag.highlight {
+    border-color: var(--purple);
+    background: rgba(124, 58, 237, 0.08);
+    color: #a78bfa;
+  }
+
+  /* ── Contact Card ── */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .contact-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+  }
+  .contact-card h3 {
+    font-size: 18px;
+    color: var(--heading);
+    margin-bottom: 24px;
+  }
+  .social-links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .social-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.2s;
+    background: rgba(255,255,255,0.01);
+  }
+  .social-link:hover {
+    border-color: var(--cyan);
+    background: rgba(6, 182, 212, 0.04);
+    transform: translateX(4px);
+  }
+  .social-link .s-icon {
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .s-icon.github { background: rgba(255,255,255,0.06); }
+  .s-icon.email { background: rgba(6, 182, 212, 0.1); }
+  .s-icon.wechat { background: rgba(7, 193, 96, 0.1); }
+  .s-icon.twitter { background: rgba(29, 161, 242, 0.1); }
+  .social-link .s-info { flex: 1; }
+  .social-link .s-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .social-link .s-value { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .social-link .s-arrow { color: var(--text-muted); font-size: 16px; transition: color 0.2s; }
+  .social-link:hover .s-arrow { color: var(--cyan); }
+
+  /* QR Code */
+  .qr-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .qr-box {
+    width: 180px; height: 180px;
+    background: #fff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .qr-placeholder {
+    text-align: center;
+    color: #94a3b8;
+  }
+  .qr-placeholder .qr-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+  }
+  .qr-placeholder .qr-text {
+    font-size: 12px;
+    color: #64748b;
+  }
+  .qr-hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ── Timeline ── */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 4px; bottom: 4px;
+    width: 1px;
+    background: var(--border);
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 32px;
+  }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-item::before {
+    content: "";
+    position: absolute;
+    left: -32px; top: 6px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+  }
+  .tl-item .tl-date {
+    font-size: 12px;
+    color: var(--cyan);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .tl-item .tl-title {
+    font-size: 16px;
+    color: var(--heading);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .tl-item .tl-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 60px 0 40px;
+  }
+  footer .divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 24px;
+  }
+  footer p { font-size: 13px; color: var(--text-muted); }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 30px; }
+    .about-card { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .hero .stats { gap: 28px; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Navigation -->
+  <nav>
+    <div class="logo">&lt;<span>Dev</span>/&gt;</div>
+    <ul class="nav-links">
+      <li><a href="#about">关于</a></li>
+      <li><a href="#skills">技能</a></li>
+      <li><a href="#experience">经历</a></li>
+      <li><a href="#contact">联系</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="avatar">N</div>
+    <h1>你好，我是 Nick</h1>
+    <div class="title">高级前端工程师</div>
+    <p class="tagline">
+      专注于构建高性能、优雅的 Web 应用。热衷于探索前端技术边界，
+      追求代码质量与用户体验的完美平衡。
+    </p>
+    <div class="stats">
+      <div class="stat"><div class="num">5+</div><div class="label">年经验</div></div>
+      <div class="stat"><div class="num">30+</div><div class="label">完成项目</div></div>
+      <div class="stat"><div class="num">React</div><div class="label">主力技术栈</div></div>
+    </div>
+  </header>
+
+  <!-- About -->
+  <section id="about">
+    <div class="section-label">01 / 关于我</div>
+    <div class="section-title">自我介绍</div>
+    <div class="about-card">
+      <div class="about-text">
+        <p>
+          我是一名热爱技术的前端工程师，拥有丰富的 Web 应用开发经验。擅长使用 React、TypeScript 等技术栈构建复杂的单页面应用。
+        </p>
+        <p>
+          关注前端工程化、性能优化以及用户体验。始终对新技术保持热情，乐于通过技术分享与开源贡献与社区共同成长。
+        </p>
+        <p>
+          工作之外，热爱摄影与旅行，相信技术源于生活，好的产品需要对世界的敏锐观察。
+        </p>
+        <div class="skill-tags" id="skill-tags">
+          <span class="skill-tag highlight">React</span>
+          <span class="skill-tag highlight">TypeScript</span>
+          <span class="skill-tag">Vue.js</span>
+          <span class="skill-tag">Next.js</span>
+          <span class="skill-tag">Node.js</span>
+          <span class="skill-tag">Tailwind CSS</span>
+          <span class="skill-tag">Webpack/Vite</span>
+          <span class="skill-tag">GraphQL</span>
+        </div>
+      </div>
+      <div class="about-info">
+        <div class="info-item">
+          <div class="info-icon">&#128188;</div>
+          <div class="info-content">
+            <div class="info-label">当前职位</div>
+            <div class="info-value">高级前端工程师</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">&#127979;</div>
+          <div class="info-content">
+            <div class="info-label">所在城市</div>
+            <div class="info-value">中国 · 上海</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">&#127891;</div>
+          <div class="info-content">
+            <div class="info-label">毕业院校</div>
+            <div class="info-value">计算机科学与技术</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">&#128640;</div>
+          <div class="info-content">
+            <div class="info-label">个人状态</div>
+            <div class="info-value">开放合作机会</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Experience -->
+  <section id="experience">
+    <div class="section-label">02 / 经历</div>
+    <div class="section-title">工作经历</div>
+    <div class="about-card">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-date">2023 — 至今</div>
+          <div class="tl-title">高级前端工程师 · XYZ Tech</div>
+          <div class="tl-desc">负责核心产品前端架构设计，主导组件库建设与性能优化专项，推动团队技术升级。</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">2021 — 2023</div>
+          <div class="tl-title">前端开发工程师 · ABC 科技</div>
+          <div class="tl-desc">参与多款 SaaS 产品前端开发，负责复杂交互场景实现与前端监控体系搭建。</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">2019 — 2021</div>
+          <div class="tl-title">初级前端工程师 · 创业团队</div>
+          <div class="tl-desc">从零到一搭建前端工程体系，快速迭代产品，积累了全流程开发经验。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <div class="section-label">03 / 联系</div>
+    <div class="section-title">联系方式</div>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <h3>找到我</h3>
+        <div class="social-links">
+          <a href="https://github.com" target="_blank" class="social-link">
+            <div class="s-icon github">&#x1F4BB;</div>
+            <div class="s-info">
+              <div class="s-name">GitHub</div>
+              <div class="s-value">github.com/yourname</div>
+            </div>
+            <span class="s-arrow">&nearr;</span>
+          </a>
+          <a href="mailto:hello@example.com" class="social-link">
+            <div class="s-icon email">&#x2709;</div>
+            <div class="s-info">
+              <div class="s-name">Email</div>
+              <div class="s-value">hello@example.com</div>
+            </div>
+            <span class="s-arrow">&nearr;</span>
+          </a>
+          <a href="#" class="social-link">
+            <div class="s-icon wechat">&#x1F4AC;</div>
+            <div class="s-info">
+              <div class="s-name">微信</div>
+              <div class="s-value">扫描右侧二维码添加</div>
+            </div>
+            <span class="s-arrow">&nearr;</span>
+          </a>
+        </div>
+      </div>
+      <div class="contact-card qr-section">
+        <h3>扫码加微信</h3>
+        <div class="qr-box">
+          <div class="qr-placeholder">
+            <div class="qr-icon">&#x1F4F1;</div>
+            <div class="qr-text">微信二维码</div>
+          </div>
+        </div>
+        <p class="qr-hint">请将您的微信二维码图片<br>替换至此处</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="divider"></div>
+    <p>&copy; 2024 Nick. Made with &#9829; and code.</p>
+  </footer>
+
+</div>
+</body>
+</html>
