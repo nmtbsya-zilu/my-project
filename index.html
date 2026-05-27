@@ -123,6 +123,7 @@
     box-shadow: 0 0 60px rgba(6, 182, 212, 0.15);
     background: transparent;
     animation: avatarFloat 4s ease-in-out infinite, avatarGlow 3s ease-in-out infinite;
+    will-change: transform;
   }
   @keyframes avatarFloat {
     0%,100% { transform: translateY(0); }
@@ -179,7 +180,7 @@
   }
 
   /* ── Section ── */
-  section { padding: 60px 0; width: 100%; }
+  section { padding: 60px 0; width: 100%; content-visibility: auto; contain-intrinsic-size: 500px; }
   header.hero { width: 100%; }
   footer { width: 100%; }
   .section-label {
@@ -1043,32 +1044,25 @@ const counterObserver = new IntersectionObserver((entries) => {
 
 document.querySelectorAll('.num[data-target]').forEach(el => counterObserver.observe(el));
 
-// ── Mouse parallax on glow orb ──
-let mouseX = 0, mouseY = 0;
-let currentX = 0, currentY = 0;
-
-document.addEventListener('mousemove', (e) => {
-  mouseX = (e.clientX / window.innerWidth - 0.5) * 30;
-  mouseY = (e.clientY / window.innerHeight - 0.5) * 30;
-});
-
-function animateGlow() {
-  currentX += (mouseX - currentX) * 0.05;
-  currentY += (mouseY - currentY) * 0.05;
-  document.body.style.setProperty('--glow-x', currentX + 'px');
-  document.body.style.setProperty('--glow-y', currentY + 'px');
-  requestAnimationFrame(animateGlow);
-}
-requestAnimationFrame(animateGlow);
-
+// ── Mouse glow moves with cursor (no continuous rAF) ──
 const glowStyle = document.createElement('style');
 glowStyle.textContent = `
   body::after {
-    transform: translate(calc(var(--glow-x, 0px)), calc(var(--glow-y, 0px)));
-    transition: none;
+    transition: transform 1.5s ease-out;
   }
 `;
 document.head.appendChild(glowStyle);
+let glowTick;
+document.addEventListener('mousemove', (e) => {
+  if (glowTick) return;
+  glowTick = requestAnimationFrame(() => {
+    const mx = (e.clientX / innerWidth - 0.5) * 20;
+    const my = (e.clientY / innerHeight - 0.5) * 20;
+    document.body.style.setProperty('--glow-x', mx + 'px');
+    document.body.style.setProperty('--glow-y', my + 'px');
+    glowTick = null;
+  });
+});
 
 // ── Smooth scroll + active nav highlight ──
 document.querySelectorAll('.nav-links a').forEach(link => {
@@ -1169,7 +1163,7 @@ document.querySelectorAll('.hero .stat').forEach(stat => {
 const canvas = document.getElementById('particle-canvas');
 const ctx = canvas.getContext('2d');
 let snowflakes = [];
-const snowCount = 80;
+const snowCount = 40;
 
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -1216,23 +1210,23 @@ function animateSnow() {
 }
 animateSnow();
 
-// ── Scroll progress bar ──
+// ── Scroll: progress bar + back to top (merged) ──
 const progressBar = document.getElementById('progress-bar');
-window.addEventListener('scroll', () => {
-  const scrollTop = document.documentElement.scrollTop;
-  const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-  const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
-  progressBar.style.width = progress + '%';
-});
-
-// ── Back to top ──
 const backToTop = document.getElementById('back-to-top');
+let scrollTicking = false;
 window.addEventListener('scroll', () => {
-  backToTop.classList.toggle('show', window.scrollY > 500);
+  if (!scrollTicking) {
+    requestAnimationFrame(() => {
+      const st = document.documentElement.scrollTop;
+      const sh = document.documentElement.scrollHeight - innerHeight;
+      progressBar.style.width = sh > 0 ? (st / sh * 100) + '%' : '0%';
+      backToTop.classList.toggle('show', st > 500);
+      scrollTicking = false;
+    });
+    scrollTicking = true;
+  }
 });
-backToTop.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
+backToTop.addEventListener('click', () => scrollTo({ top: 0, behavior: 'smooth' }));
 
 // ── 3D Tilt effect ──
 document.querySelectorAll('.tilt-card').forEach(card => {
@@ -1290,7 +1284,7 @@ document.querySelectorAll('.tl-item').forEach((item, i) => {
 
 // ── Click particle burst ──
 document.addEventListener('click', (e) => {
-  const count = 8;
+  const count = 6;
   for (let i = 0; i < count; i++) {
     const p = document.createElement('div');
     p.className = 'burst-particle';
