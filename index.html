@@ -2,376 +2,1174 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>小月</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>子路 - 个人主页</title>
 <style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --border: #1e293b;
+    --text: #cbd5e1;
+    --text-muted: #64748b;
+    --heading: #f1f5f9;
+    --cyan: #06b6d4;
+    --purple: #7c3aed;
+    --gradient: linear-gradient(135deg, #06b6d4, #7c3aed);
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-    background: #0a0e17;
-    color: #cbd5e1;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
     min-height: 100vh;
     overflow-x: hidden;
   }
-  canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
-  .page {
-    position: relative; z-index: 1;
-    max-width: 420px; margin: 0 auto;
-    padding: 32px 20px 48px;
+  /* Classical texture background */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none;
+    z-index: 0;
   }
 
-  /* Hero */
-  .hero { text-align: center; padding: 24px 0 28px; }
-  .avatar-wrap {
-    display: inline-block; position: relative;
-    animation: avatarFloat 3s ease-in-out infinite;
+  /* Warm glow orb */
+  body::after {
+    content: "";
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    filter: blur(180px);
+    background: #06b6d4;
+    opacity: 0.05;
+    top: -200px; left: -200px;
+    pointer-events: none;
+    z-index: 0;
   }
-  @keyframes avatarFloat {
-    0%,100% { transform: translateY(0); }
-    50%     { transform: translateY(-6px); }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
   }
-  .avatar-ring {
-    position: absolute; inset: -4px; border-radius: 50%;
-    background: linear-gradient(135deg, #06b6d4, #7c3aed);
-    animation: ringPulse 2s ease-in-out infinite;
+
+  /* ── Navigation ── */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 0;
   }
-  @keyframes ringPulse {
-    0%,100% { opacity: 0.6; transform: scale(1); }
-    50%     { opacity: 1; transform: scale(1.06); }
+  .logo {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--heading);
+    letter-spacing: -0.5px;
+  }
+  .logo span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--cyan); }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 80px 0 60px;
+    text-align: center;
   }
   .avatar {
-    width: 80px; height: 80px; border-radius: 50%;
-    object-fit: cover; display: block; position: relative; z-index: 1;
-    border: 3px solid #0a0e17;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: var(--gradient);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 28px;
+    box-shadow: 0 0 60px rgba(6, 182, 212, 0.25);
+    position: relative;
   }
-
+  .avatar::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: var(--gradient);
+    z-index: -1;
+  }
   .hero h1 {
-    font-size: 28px; font-weight: 700;
-    background: linear-gradient(135deg, #06b6d4, #7c3aed, #06b6d4);
-    background-size: 200% 200%;
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    animation: gradShift 3s ease infinite;
-    margin-top: 16px;
+    font-size: 42px;
+    font-weight: 800;
+    color: var(--heading);
+    letter-spacing: -1px;
+    margin-bottom: 12px;
   }
-  @keyframes gradShift {
-    0%,100% { background-position: 0% 50%; }
-    50%     { background-position: 100% 50%; }
+  .hero .title {
+    font-size: 18px;
+    color: var(--cyan);
+    font-weight: 500;
+    margin-bottom: 8px;
   }
-  .hero .sub { font-size: 14px; color: #06b6d4; margin-top: 6px; }
-
-  /* Stats */
-  .stats { display: flex; justify-content: center; gap: 32px; margin-top: 18px; }
-  .stat { text-align: center; }
+  .hero .tagline {
+    font-size: 15px;
+    color: var(--text-muted);
+    max-width: 500px;
+    margin: 0 auto 32px;
+    line-height: 1.7;
+  }
+  .hero .stats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+  }
+  .hero .stat {
+    text-align: center;
+  }
   .stat .num {
-    font-size: 24px; font-weight: 700;
-    background: linear-gradient(135deg, #06b6d4, #7c3aed);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    font-size: 28px;
+    font-weight: 700;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
-  .stat .label { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .stat .label {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
 
-  /* Card */
-  .card {
-    background: rgba(17, 24, 39, 0.85);
-    border: 1px solid #1e293b;
-    border-radius: 14px;
-    padding: 20px;
+  /* ── Section ── */
+  section { padding: 60px 0; }
+  .section-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--cyan);
     margin-bottom: 16px;
-    backdrop-filter: blur(10px);
-    opacity: 0; transform: translateY(24px);
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative; overflow: hidden;
+    font-weight: 600;
   }
-  .card.visible { opacity: 1; transform: translateY(0); }
-  .card h3 {
-    font-size: 13px; text-transform: uppercase; letter-spacing: 2px;
-    color: #06b6d4; margin-bottom: 14px;
+  .section-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--heading);
+    margin-bottom: 40px;
+    letter-spacing: -0.5px;
   }
 
-  /* Ripple */
-  .ripple {
-    position: absolute; border-radius: 50%;
-    background: rgba(6, 182, 212, 0.25);
-    transform: scale(0); animation: ripple 0.6s ease-out;
+  /* ── About Card ── */
+  .about-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .about-text p {
+    color: var(--text-muted);
+    line-height: 1.8;
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+  .about-text p:last-child { margin-bottom: 0; }
+  .about-info {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .info-icon {
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    background: rgba(6, 182, 212, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .info-content .info-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+  .info-content .info-value {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  /* ── Skills ── */
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .skill-tag {
+    padding: 6px 16px;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.02);
+    transition: all 0.2s;
+  }
+  .skill-tag:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: rgba(6, 182, 212, 0.06);
+  }
+  .skill-tag.highlight {
+    border-color: var(--purple);
+    background: rgba(124, 58, 237, 0.08);
+    color: #a78bfa;
+  }
+
+  /* ── Contact Card ── */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .contact-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+  }
+  .contact-card h3 {
+    font-size: 18px;
+    color: var(--heading);
+    margin-bottom: 24px;
+  }
+  .social-links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .social-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.2s;
+    background: rgba(255,255,255,0.01);
+  }
+  .social-link:hover {
+    border-color: var(--cyan);
+    background: rgba(6, 182, 212, 0.04);
+    transform: translateX(4px);
+  }
+  .social-link .s-icon {
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .s-icon.github { background: rgba(255,255,255,0.06); }
+  .s-icon.email { background: rgba(6, 182, 212, 0.1); }
+  .s-icon.wechat { background: rgba(7, 193, 96, 0.1); }
+  .s-icon.twitter { background: rgba(29, 161, 242, 0.1); }
+  .social-link .s-info { flex: 1; }
+  .social-link .s-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .social-link .s-value { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .social-link .s-arrow { color: var(--text-muted); font-size: 16px; transition: color 0.2s; }
+  .social-link:hover .s-arrow { color: var(--cyan); }
+
+  /* QR Code */
+  .qr-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .qr-box {
+    width: 180px; height: 180px;
+    background: #fff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .qr-placeholder {
+    text-align: center;
+    color: #94a3b8;
+  }
+  .qr-placeholder .qr-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+  }
+  .qr-placeholder .qr-text {
+    font-size: 12px;
+    color: #64748b;
+  }
+  .qr-hint {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ── Timeline ── */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 4px; bottom: 4px;
+    width: 1px;
+    background: var(--border);
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 32px;
+  }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-item::before {
+    content: "";
+    position: absolute;
+    left: -32px; top: 6px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+  }
+  .tl-item .tl-date {
+    font-size: 12px;
+    color: var(--cyan);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .tl-item .tl-title {
+    font-size: 16px;
+    color: var(--heading);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .tl-item .tl-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 60px 0 40px;
+  }
+  footer .divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 24px;
+  }
+  footer p { font-size: 13px; color: var(--text-muted); }
+
+  /* ── Particle canvas ── */
+  #particle-canvas {
+    position: fixed; inset: 0;
+    z-index: 0;
     pointer-events: none;
   }
-  @keyframes ripple { to { transform: scale(4); opacity: 0; } }
 
-  /* Info rows */
-  .row {
-    display: flex; align-items: center;
-    gap: 12px; padding: 10px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
+  /* ── Scroll progress bar ── */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: var(--gradient);
+    z-index: 999;
+    transition: width 0.1s linear;
   }
-  .row:last-child { border-bottom: none; }
-  .row .icon { font-size: 18px; width: 32px; text-align: center; flex-shrink: 0; }
-  .row .label { font-size: 12px; color: #64748b; }
-  .row .value { font-size: 14px; color: #cbd5e1; }
 
-  /* Tags */
-  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
-  .tag {
-    padding: 5px 14px; border-radius: 20px;
-    font-size: 12px; border: 1px solid #1e293b;
-    color: #94a3b8;
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* ── Back to top ── */
+  #back-to-top {
+    position: fixed;
+    bottom: 32px; right: 32px;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 20px;
     cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+    z-index: 99;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
-  .tag:active {
-    border-color: #06b6d4; color: #06b6d4;
-    background: rgba(6,182,212,0.1);
-    transform: scale(1.08);
+  #back-to-top.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+  #back-to-top:hover {
+    border-color: var(--purple);
+    color: var(--cyan);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.1);
   }
 
-  /* Certs */
-  .cert-row {
-    display: flex; gap: 10px;
-    overflow-x: auto; padding-bottom: 8px;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
+  /* ── 3D Tilt base ── */
+  .tilt-card {
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out;
   }
-  .cert-row img {
-    width: 140px; height: auto; border-radius: 8px;
-    cursor: pointer; scroll-snap-align: start;
-    border: 1px solid #1e293b;
-    transition: transform 0.3s;
-  }
-  .cert-row img:active { transform: scale(1.03); }
 
-  /* Contact buttons */
-  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .btn {
-    display: flex; align-items: center; justify-content: center;
-    gap: 6px; padding: 13px; border-radius: 10px;
-    border: 1px solid #1e293b; text-decoration: none;
-    color: #cbd5e1; font-size: 13px;
-    transition: all 0.2s; position: relative; overflow: hidden;
-    background: rgba(255,255,255,0.02);
-    -webkit-tap-highlight-color: transparent;
+  /* ── Certificates ── */
+  .cert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
   }
-  .btn:active { border-color: #06b6d4; background: rgba(6,182,212,0.1); transform: scale(0.96); }
+  .cert-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .cert-card:hover {
+    border-color: var(--purple);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(6, 182, 212, 0.15);
+  }
+  .cert-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
 
   /* Lightbox */
-  .lb {
-    display: none; position: fixed; inset: 0; z-index: 999;
-    background: rgba(0,0,0,0.92); align-items: center; justify-content: center;
-    animation: fadeIn 0.2s;
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.85);
+    align-items: center;
+    justify-content: center;
   }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  .lb.show { display: flex; }
-  .lb img { max-width: 92vw; max-height: 85vh; border-radius: 8px; }
-  .lb .close {
-    position: absolute; top: 16px; right: 20px;
-    font-size: 32px; color: #fff; cursor: pointer;
+  .lightbox.show { display: flex; }
+  .lightbox img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease;
+  }
+  .lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 32px;
+    font-size: 40px;
+    color: #fff;
+    cursor: pointer;
+    z-index: 1001;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+  .lightbox-close:hover { color: var(--cyan); }
+
+  /* Stats clickable */
+  .hero .stat.clickable {
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .hero .stat.clickable:hover { transform: scale(1.05); }
+
+  /* ── Animations ── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 60px rgba(6, 182, 212, 0.25); }
+    50%      { box-shadow: 0 0 90px rgba(6, 182, 212, 0.45); }
+  }
+  @keyframes charFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    25%      { transform: translateY(-12px) scale(1.08); }
+    75%      { transform: translateY(4px) scale(0.96); }
+  }
+  @keyframes charGradient {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+  .float-char {
+    display: inline-block;
+    background: var(--gradient);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: charFloat 3s ease-in-out infinite, charGradient 4s ease infinite;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s;
+    cursor: default;
+  }
+  .float-char:hover {
+    animation: charFloat 3s ease-in-out infinite, charGradient 4s ease infinite, charBounce 0.4s ease;
+    filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.7));
+  }
+  @keyframes charBounce {
+    0%   { transform: translateY(0) scale(1); }
+    40%  { transform: translateY(-20px) scale(1.25); }
+    70%  { transform: translateY(8px) scale(0.92); }
+    100% { transform: translateY(0) scale(1); }
   }
 
-  .footer { text-align: center; padding: 20px 0; font-size: 12px; color: #475569; }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  .typing-cursor::after {
+    content: "|";
+    animation: blink 1s infinite;
+    color: var(--cyan);
+    margin-left: 2px;
+  }
+
+  .avatar { animation: pulse-glow 3s ease-in-out infinite; }
+
+  /* Mobile menu */
+  .menu-btn {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    z-index: 100;
+  }
+  .menu-btn span {
+    display: block;
+    width: 24px; height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+  .menu-btn.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+  .menu-btn.active span:nth-child(2) { opacity: 0; }
+  .menu-btn.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+  .nav-links a.active { color: var(--cyan); }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 30px; }
+    .about-card { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .hero .stats { gap: 28px; }
+    .menu-btn { display: flex; }
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; right: -100%;
+      width: 260px; height: 100vh;
+      background: rgba(17, 24, 39, 0.98);
+      backdrop-filter: blur(20px);
+      padding: 100px 32px 40px;
+      gap: 24px;
+      border-left: 1px solid var(--border);
+      transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 99;
+    }
+    .nav-links.open { right: 0; }
+    .nav-links a { font-size: 18px; }
+    .nav-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 98;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .nav-overlay.show { opacity: 1; pointer-events: all; }
+  }
 </style>
 </head>
 <body>
 
-<canvas id="snow"></canvas>
+<canvas id="particle-canvas"></canvas>
+<div id="progress-bar"></div>
+<button id="back-to-top" title="回到顶部">&#8593;</button>
 
-<div class="page">
+<div class="container">
 
-  <div class="hero">
-    <div class="avatar-wrap">
-      <div class="avatar-ring"></div>
-      <img class="avatar" src="avatar.jpg" alt="头像">
-    </div>
-    <h1>小月</h1>
-    <div class="sub">测控技术与仪器 · 大三在读</div>
-    <div class="stats">
-      <div class="stat"><div class="num" data-to="6" data-suf="+">0</div><div class="label">国家级奖项</div></div>
-      <div class="stat"><div class="num" data-to="5" data-suf="+">0</div><div class="label">省级奖项</div></div>
-      <div class="stat"><div class="num" data-to="3" data-suf="+">0</div><div class="label">校级奖项</div></div>
-    </div>
-  </div>
+  <!-- Navigation -->
+  <nav>
+    <div class="logo">&lt;<span>XP</span>/&gt;</div>
+    <button class="menu-btn" id="menu-btn" aria-label="菜单">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#about">关于</a></li>
+      <li><a href="#experience">经历</a></li>
+      <li><a href="#contact">联系</a></li>
+      <li><a href="#certificates">证书</a></li>
+    </ul>
+  </nav>
+  <div class="nav-overlay" id="nav-overlay"></div>
 
-  <div class="card">
-    <h3>个人简介</h3>
-    <p style="font-size:13px;color:#94a3b8;line-height:1.8;">
-      热爱嵌入式开发与机器人竞赛，专注于电路设计、嵌入式程序开发与仿真验证。
-      在 ROBOCON 全国大学生机器人大赛中多次获得国家级奖项，善于在高压竞赛环境下快速定位和解决软硬件问题。
-      课余时间喜欢钻研嵌入式开源项目，期望在智能硬件与机器人领域深入发展。
+  <!-- Hero -->
+  <header class="hero">
+    <div class="avatar"><img src="avatar.jpg" alt="头像" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"></div>
+    <h1 id="typing-target" class="typing-cursor">小</h1>
+    <div class="title">测控技术与仪器 · 大三在读</div>
+    <p class="tagline">
+      热爱嵌入式开发与机器人竞赛，专注于电路设计、嵌入式程序开发与仿真验证，
+      在 ROBOCON 等国家级赛事中积累了丰富的实战经验。
     </p>
+    <div class="stats">
+      <div class="stat"><div class="num" data-target="6" data-suffix="+">0</div><div class="label">国家级奖项</div></div>
+      <div class="stat"><div class="num" data-target="5" data-suffix="+">0</div><div class="label">省级奖项</div></div>
+      <div class="stat"><div class="num">嵌入式</div><div class="label">主攻方向</div></div>
+    </div>
+  </header>
+
+  <!-- About -->
+  <section id="about" class="reveal">
+    <div class="section-label">01 / 关于我</div>
+    <div class="section-title">自我介绍</div>
+    <div class="about-card tilt-card">
+      <div class="about-text">
+        <p>
+          我是一名测控技术与仪器专业的大三学生，热爱嵌入式开发与机器人竞赛。具备电路设计、仿真验证、PCB 绘制及嵌入式程序开发的全流程实操能力。
+        </p>
+        <p>
+          在 ROBOCON 全国大学生机器人大赛中多次获得国家级奖项。善于在高压竞赛环境下快速定位和解决软硬件问题，具备良好的团队协作与工程实践能力。
+        </p>
+        <p>
+          课余时间喜欢钻研嵌入式开源项目，持续学习前沿技术，期待在智能硬件与机器人领域深入发展。
+        </p>
+        <div class="skill-tags" id="skill-tags">
+          <span class="skill-tag highlight">Keil5</span>
+          <span class="skill-tag highlight">嘉立创 EDA</span>
+          <span class="skill-tag">Solidworks</span>
+          <span class="skill-tag">MATLAB</span>
+          <span class="skill-tag">Multisim</span>
+          <span class="skill-tag">Proteus</span>
+          <span class="skill-tag">嵌入式 C</span>
+          <span class="skill-tag">PCB 设计</span>
+        </div>
+      </div>
+      <div class="about-info">
+        <div class="info-item">
+          <div class="info-icon">&#128188;</div>
+          <div class="info-content">
+            <div class="info-label">在读院校</div>
+            <div class="info-value">广西科技大学</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">&#127979;</div>
+          <div class="info-content">
+            <div class="info-label">所学专业</div>
+            <div class="info-value">测控技术与仪器</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">&#127891;</div>
+          <div class="info-content">
+            <div class="info-label">籍贯</div>
+            <div class="info-value">广西南宁</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">&#128640;</div>
+          <div class="info-content">
+            <div class="info-label">当前状态</div>
+            <div class="info-value">大三在读</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Experience -->
+  <section id="experience" class="reveal">
+    <div class="section-label">02 / 教育 &amp; 竞赛</div>
+    <div class="section-title">教育 &amp; 竞赛经历</div>
+    <div class="about-card tilt-card">
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-date">2023 — 2027</div>
+          <div class="tl-title">广西科技大学 · 测控技术与仪器</div>
+          <div class="tl-desc">本科在读，系统学习嵌入式系统、传感器技术、自动控制原理等核心课程，具备扎实的软硬件理论基础。</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">2024 — 2025</div>
+          <div class="tl-title">ROBOCON 学科竞赛项目组 · 核心成员</div>
+          <div class="tl-desc">负责机器人嵌入式程序开发与调试，运用 Keil5 实现运动控制与信号稳定性优化，助力团队斩获多项国家级奖项。</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">2024 — 至今</div>
+          <div class="tl-title">电子设计竞赛 · 校级奖项</div>
+          <div class="tl-desc">参与校级电子设计竞赛，完成电路设计、仿真验证与 PCB 绘制，获得校级二等奖、三等奖等多项荣誉。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- Contact -->
+  <section id="contact" class="reveal">
+    <div class="section-label">03 / 联系</div>
+    <div class="section-title">联系方式</div>
+    <div class="contact-grid">
+      <div class="contact-card tilt-card">
+        <h3>找到我</h3>
+        <div class="social-links">
+          <a href="#" class="social-link">
+            <div class="s-icon github">&#x1F4BB;</div>
+            <div class="s-info">
+              <div class="s-name">电话</div>
+              <div class="s-value">xxxx</div>
+            </div>
+            <span class="s-arrow">&nearr;</span>
+          </a>
+          <a href="mailto:2142807174@qq.com" class="social-link">
+            <div class="s-icon email">&#x2709;</div>
+            <div class="s-info">
+              <div class="s-name">Email</div>
+              <div class="s-value">2142807174@qq.com</div>
+            </div>
+            <span class="s-arrow">&nearr;</span>
+          </a>
+          <a href="mailto:nmtbsya@gmail.com" class="social-link">
+            <div class="s-icon email">&#9993;</div>
+            <div class="s-info">
+              <div class="s-name">Gmail</div>
+              <div class="s-value">nmtbsya@gmail.com</div>
+            </div>
+            <span class="s-arrow">&nearr;</span>
+          </a>
+          <a href="#" class="social-link">
+            <div class="s-icon wechat">&#x1F4AC;</div>
+            <div class="s-info">
+              <div class="s-name">QQ</div>
+              <div class="s-value">2142807174</div>
+            </div>
+            <span class="s-arrow">&nearr;</span>
+          </a>
+        </div>
+      </div>
+      <div class="contact-card qr-section">
+        <h3>联系方式</h3>
+        <div class="qr-box">
+          <img src="qrcode.jpg" alt="微信二维码" style="width:180px;height:180px;border-radius:12px;object-fit:cover;">
+        </div>
+        <p class="qr-hint">扫描二维码<br>添加微信</p>
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- Certificates -->
+  <section id="certificates" class="reveal">
+    <div class="section-label">04 / 证书</div>
+    <div class="section-title">荣誉证书</div>
+    <div class="cert-grid">
+      <div class="cert-card tilt-card">
+        <img src="certs/2025-RC-S-S-L36-45195173.png" alt="证书1" loading="lazy">
+      </div>
+      <div class="cert-card tilt-card">
+        <img src="certs/2025-RC-S-S-L36-72639645.png" alt="证书2" loading="lazy">
+      </div>
+      <div class="cert-card tilt-card">
+        <img src="certs/2025-RC-S-S-L36-89038782.png" alt="证书3" loading="lazy">
+      </div>
+      <div class="cert-card tilt-card">
+        <img src="certs/2024-1104-995bfbaf-9b8e-4523-925d-0169fac3635a.png" alt="证书4" loading="lazy">
+      </div>
+      <div class="cert-card tilt-card">
+        <img src="certs/2025-1121-2b5a5a2e-19c7-4816-aa47-dc29d7f76c1b.png" alt="证书5" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <span class="lightbox-close" id="lightbox-close">&times;</span>
+    <img id="lightbox-img" src="" alt="证书预览">
   </div>
 
-  <div class="card">
-    <h3>个人信息</h3>
-    <div class="row">
-      <span class="icon">&#127979;</span>
-      <div><div class="label">在读院校</div><div class="value">广西科技大学</div></div>
-    </div>
-    <div class="row">
-      <span class="icon">&#128218;</span>
-      <div><div class="label">所学专业</div><div class="value">测控技术与仪器</div></div>
-    </div>
-    <div class="row">
-      <span class="icon">&#127968;</span>
-      <div><div class="label">籍贯</div><div class="value">广西南宁</div></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>技能</h3>
-    <div class="tags">
-      <span class="tag">Keil5</span>
-      <span class="tag">嘉立创 EDA</span>
-      <span class="tag">Solidworks</span>
-      <span class="tag">MATLAB</span>
-      <span class="tag">Multisim</span>
-      <span class="tag">Proteus</span>
-      <span class="tag">嵌入式 C</span>
-      <span class="tag">PCB 设计</span>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>竞赛荣誉</h3>
-    <div class="row">
-      <span class="icon">&#127942;</span>
-      <div><div class="value">ROBOCON 国家级二等奖、三等奖 6 项</div></div>
-    </div>
-    <div class="row">
-      <span class="icon">&#127942;</span>
-      <div><div class="value">数字媒体科技竞赛国家三等奖</div></div>
-    </div>
-    <div class="row">
-      <span class="icon">&#127942;</span>
-      <div><div class="value">电子设计竞赛校级奖项 3 项</div></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>荣誉证书</h3>
-    <div class="cert-row">
-      <img src="certs/2025-RC-S-S-L36-45195173.png" alt="证书" onclick="openLb(this.src)">
-      <img src="certs/2025-RC-S-S-L36-72639645.png" alt="证书" onclick="openLb(this.src)">
-      <img src="certs/2025-RC-S-S-L36-89038782.png" alt="证书" onclick="openLb(this.src)">
-      <img src="certs/2024-1104-995bfbaf-9b8e-4523-925d-0169fac3635a.png" alt="证书" onclick="openLb(this.src)">
-      <img src="certs/2025-1121-2b5a5a2e-19c7-4816-aa47-dc29d7f76c1b.png" alt="证书" onclick="openLb(this.src)">
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>联系方式</h3>
-    <div class="btns">
-      <a class="btn" href="tel:18078104046">&#128222; 电话</a>
-      <a class="btn" href="mailto:2142807174@qq.com">&#9993; QQ邮箱</a>
-      <a class="btn" href="mailto:nmtbsya@gmail.com">&#9993; Gmail</a>
-      <a class="btn" onclick="alert('QQ: 2142807174')">&#128172; QQ</a>
-    </div>
-    <div style="text-align:center;margin-top:16px;">
-      <img src="qrcode.jpg" alt="微信二维码" style="width:140px;height:140px;border-radius:10px;border:1px solid #1e293b;">
-      <div style="font-size:11px;color:#64748b;margin-top:6px;">扫描二维码添加微信</div>
-    </div>
-  </div>
-
-  <div class="footer">&#169; 2026 小月</div>
+  
+  <!-- Footer -->
+  <footer class="reveal">
+    <div class="divider"></div>
+    <p>&copy; 2026 子路. Made with &#9829; and code.</p>
+  </footer>
 
 </div>
-
-<div class="lb" id="lb" onclick="closeLb()">
-  <span class="close">&times;</span>
-  <img id="lb-img" src="">
-</div>
-
 <script>
-// Snow
-const c = document.getElementById('snow');
-const ctx = c.getContext('2d');
-let w, h, flakes = [];
+// ── Mobile menu toggle ──
+const menuBtn = document.getElementById('menu-btn');
+const navLinks = document.getElementById('nav-links');
+const overlay = document.getElementById('nav-overlay');
 
-function resize() {
-  w = c.width = window.innerWidth;
-  h = c.height = window.innerHeight;
-  flakes = Array.from({length: 50}, () => ({
-    x: Math.random() * w, y: Math.random() * h,
-    r: Math.random() * 2 + 0.5,
-    vy: Math.random() * 0.4 + 0.15,
-    vx: (Math.random() - 0.5) * 0.2,
-    o: Math.random() * 0.4 + 0.15,
-    wb: Math.random() * Math.PI * 2
-  }));
+function openMenu() {
+  menuBtn.classList.add('active');
+  navLinks.classList.add('open');
+  overlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
 }
-resize();
-window.addEventListener('resize', resize);
+function closeMenu() {
+  menuBtn.classList.remove('active');
+  navLinks.classList.remove('open');
+  overlay.classList.remove('show');
+  document.body.style.overflow = '';
+}
 
-function draw() {
-  ctx.clearRect(0, 0, w, h);
-  flakes.forEach(f => {
-    f.wb += 0.004;
-    f.x += f.vx + Math.sin(f.wb) * 0.15;
-    f.y += f.vy;
-    if (f.y > h + 5) { f.y = -5; f.x = Math.random() * w; }
-    if (f.x < -5) f.x = w + 5;
-    if (f.x > w + 5) f.x = -5;
-    ctx.beginPath();
-    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(6,182,212,${f.o})`;
-    ctx.fill();
+menuBtn.addEventListener('click', () => {
+  navLinks.classList.contains('open') ? closeMenu() : openMenu();
+});
+overlay.addEventListener('click', closeMenu);
+navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+
+// ── Typing effect (one-shot on page load) ──
+const typingEl = document.getElementById('typing-target');
+const fullText = '子路';
+let charIdx = 0;
+
+function typeChar() {
+  if (charIdx < fullText.length) {
+    typingEl.textContent = fullText.slice(0, charIdx + 1);
+    charIdx++;
+    setTimeout(typeChar, 100 + Math.random() * 60);
+  } else {
+    typingEl.classList.remove('typing-cursor');
+    // Split into individual chars for floating animation
+    typingEl.innerHTML = '';
+    fullText.split('').forEach((ch, i) => {
+      const span = document.createElement('span');
+      span.textContent = ch;
+      span.className = 'float-char';
+      span.style.animationDelay = i * 0.25 + 's';
+      typingEl.appendChild(span);
+    });
+  }
+}
+setTimeout(typeChar, 400);
+
+// ── Bidirectional scroll reveal ──
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    entry.target.classList.toggle('visible', entry.isIntersecting);
   });
-  requestAnimationFrame(draw);
-}
-draw();
+}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
 
-// Scroll reveal cards - bidirectional
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => { e.target.classList.toggle('visible', e.isIntersecting); });
-}, { threshold: 0.15 });
-document.querySelectorAll('.card').forEach(c => observer.observe(c));
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
-// Counter animation - bidirectional
+// ── Bidirectional counter animation ──
 const counterStates = new WeakMap();
+
 function animateCounter(el) {
-  const to = parseInt(el.dataset.to), suf = el.dataset.suf || '';
-  const dur = 1500, start = performance.now();
+  const targetNum = parseInt(el.dataset.target, 10);
+  const suffix = el.dataset.suffix || '';
+  const duration = 1500;
+  const start = performance.now();
   const state = { raf: 0 };
   counterStates.set(el, state);
+
   function tick(now) {
-    const p = Math.min((now - start) / dur, 1);
-    const v = 1 - Math.pow(1 - p, 3);
-    el.textContent = Math.round(v * to) + suf;
-    if (p < 1) state.raf = requestAnimationFrame(tick);
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(eased * targetNum) + suffix;
+    if (progress < 1) {
+      state.raf = requestAnimationFrame(tick);
+    }
   }
   state.raf = requestAnimationFrame(tick);
 }
+
 function resetCounter(el) {
-  const s = counterStates.get(el);
-  if (s) { cancelAnimationFrame(s.raf); counterStates.delete(el); }
+  const state = counterStates.get(el);
+  if (state) {
+    cancelAnimationFrame(state.raf);
+    counterStates.delete(el);
+  }
   el.textContent = '0';
 }
-const co = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) animateCounter(e.target);
-    else resetCounter(e.target);
+
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      animateCounter(entry.target);
+    } else {
+      resetCounter(entry.target);
+    }
   });
 }, { threshold: 0.5 });
-document.querySelectorAll('.num[data-to]').forEach(n => co.observe(n));
 
-// Ripple effect on buttons
-document.querySelectorAll('.btn,.tag').forEach(el => {
-  el.addEventListener('pointerdown', function(e) {
-    const rect = this.getBoundingClientRect();
-    const ripple = document.createElement('span');
-    ripple.className = 'ripple';
-    const size = Math.max(rect.width, rect.height);
-    ripple.style.width = ripple.style.height = size + 'px';
-    ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
-    ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
-    this.appendChild(ripple);
-    ripple.addEventListener('animationend', () => ripple.remove());
+document.querySelectorAll('.num[data-target]').forEach(el => counterObserver.observe(el));
+
+// ── Mouse parallax on glow orb ──
+let mouseX = 0, mouseY = 0;
+let currentX = 0, currentY = 0;
+
+document.addEventListener('mousemove', (e) => {
+  mouseX = (e.clientX / window.innerWidth - 0.5) * 30;
+  mouseY = (e.clientY / window.innerHeight - 0.5) * 30;
+});
+
+function animateGlow() {
+  currentX += (mouseX - currentX) * 0.05;
+  currentY += (mouseY - currentY) * 0.05;
+  document.body.style.setProperty('--glow-x', currentX + 'px');
+  document.body.style.setProperty('--glow-y', currentY + 'px');
+  requestAnimationFrame(animateGlow);
+}
+requestAnimationFrame(animateGlow);
+
+const glowStyle = document.createElement('style');
+glowStyle.textContent = `
+  body::after {
+    transform: translate(calc(var(--glow-x, 0px)), calc(var(--glow-y, 0px)));
+    transition: none;
+  }
+`;
+document.head.appendChild(glowStyle);
+
+// ── Smooth scroll + active nav highlight ──
+document.querySelectorAll('.nav-links a').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const el = document.querySelector(this.getAttribute('href'));
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 });
 
-// Lightbox
-const lb = document.getElementById('lb');
-const lbImg = document.getElementById('lb-img');
-function openLb(src) { lbImg.src = src; lb.classList.add('show'); document.body.style.overflow = 'hidden'; }
-function closeLb() { lb.classList.remove('show'); document.body.style.overflow = ''; }
-</script>
+const sections = document.querySelectorAll('section[id], header.hero');
+const navAs = document.querySelectorAll('.nav-links a');
 
+const navObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id || 'hero';
+      navAs.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + id || (id === 'hero' && a.getAttribute('href') === '#about'));
+      });
+    }
+  });
+}, { threshold: 0, rootMargin: '-40% 0px -55% 0px' });
+
+sections.forEach(sec => navObserver.observe(sec));
+
+// ── Bidirectional skill tag animation ──
+const skillTags = document.querySelectorAll('.skill-tag');
+skillTags.forEach((tag, i) => { tag.dataset.delay = i * 0.06; });
+
+function playSkillAnim(tag) {
+  const delay = parseFloat(tag.dataset.delay);
+  tag.style.animation = 'none';
+  tag.style.opacity = '0';
+  tag.offsetHeight; // force reflow
+  tag.style.animation = `fadeInUp 0.5s ${delay}s forwards`;
+  tag.style.opacity = '';
+}
+
+function resetSkillAnim(tag) {
+  tag.style.animation = 'none';
+  tag.style.opacity = '0';
+}
+
+const skillObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      playSkillAnim(entry.target);
+    } else {
+      resetSkillAnim(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+skillTags.forEach(tag => {
+  tag.style.opacity = '0';
+  skillObserver.observe(tag);
+});
+
+// ── Certificate lightbox ──
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
+const lightboxClose = document.getElementById('lightbox-close');
+
+document.querySelectorAll('.cert-card img').forEach(img => {
+  img.addEventListener('click', () => {
+    lightboxImg.src = img.src;
+    lightbox.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  });
+});
+
+function closeLightbox() {
+  lightbox.classList.remove('show');
+  document.body.style.overflow = '';
+}
+lightboxClose.addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', (e) => {
+  if (e.target === lightbox) closeLightbox();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+// ── Stats click → scroll to certificates ──
+const certSection = document.getElementById('certificates');
+document.querySelectorAll('.hero .stat').forEach(stat => {
+  const label = stat.querySelector('.label');
+  if (label && (label.textContent.includes('国家级') || label.textContent.includes('省级'))) {
+    stat.classList.add('clickable');
+    stat.addEventListener('click', () => {
+      certSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+});
+
+// ── Snowfall canvas background ──
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+let snowflakes = [];
+const snowCount = 80;
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  initSnow();
+});
+
+function initSnow() {
+  snowflakes = [];
+  for (let i = 0; i < snowCount; i++) {
+    snowflakes.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 3 + 1,
+      vy: Math.random() * 0.6 + 0.2,
+      vx: (Math.random() - 0.5) * 0.3,
+      opacity: Math.random() * 0.5 + 0.2,
+      wobble: Math.random() * Math.PI * 2
+    });
+  }
+}
+initSnow();
+
+function animateSnow() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  snowflakes.forEach(s => {
+    s.wobble += 0.005;
+    s.x += s.vx + Math.sin(s.wobble) * 0.2;
+    s.y += s.vy;
+    if (s.y > canvas.height + 5) { s.y = -5; s.x = Math.random() * canvas.width; }
+    if (s.x < -5) s.x = canvas.width + 5;
+    if (s.x > canvas.width + 5) s.x = -5;
+
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(6, 182, 212, ${s.opacity})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(animateSnow);
+}
+animateSnow();
+
+// ── Scroll progress bar ──
+const progressBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const scrollTop = document.documentElement.scrollTop;
+  const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+  progressBar.style.width = progress + '%';
+});
+
+// ── Back to top ──
+const backToTop = document.getElementById('back-to-top');
+window.addEventListener('scroll', () => {
+  backToTop.classList.toggle('show', window.scrollY > 500);
+});
+backToTop.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ── 3D Tilt effect ──
+document.querySelectorAll('.tilt-card').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const midX = rect.width / 2;
+    const midY = rect.height / 2;
+    const rotateX = ((y - midY) / midY) * -6;
+    const rotateY = ((x - midX) / midX) * 6;
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+  });
+});
+
+console.log('✨ 页面动效已就绪（双向触发）');
+</script>
 </body>
 </html>
