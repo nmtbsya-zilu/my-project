@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp -r \"c:/Users/nmtbs/Desktop/my\" \"E:/study/my-project\" && echo \"copied\")",
+      "Bash(pandoc \"C:/Users/nmtbs/Desktop/简历.docx\" -o \"C:/Users/nmtbs/Desktop/简历.md\" --wrap=none)",
+      "Read(//c/Users/nmtbs/Desktop/**)"
+    ]
+  }
+}
