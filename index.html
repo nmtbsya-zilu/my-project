@@ -662,6 +662,33 @@
     }
     .nav-overlay.show { opacity: 1; pointer-events: all; }
   }
+
+  /* ── Section dot nav ── */
+  .section-dots {
+    position: fixed; right: 20px; top: 50%; transform: translateY(-50%);
+    z-index: 99; display: flex; flex-direction: column; gap: 12px;
+  }
+  .section-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--border); cursor: pointer;
+    transition: all 0.3s;
+  }
+  .section-dot.active, .section-dot:hover { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+  @media (max-width: 768px) { .section-dots { display: none; } }
+
+  /* ── Click burst ── */
+  .burst-particle {
+    position: fixed; pointer-events: none; z-index: 9999;
+    border-radius: 50%;
+    animation: burstOut 0.7s ease-out forwards;
+  }
+  @keyframes burstOut {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--bx), var(--by)) scale(0); opacity: 0; }
+  }
+
+  /* ── Hero parallax ── */
+  .hero .avatar img { transition: transform 0.1s linear; }
 </style>
 </head>
 <body>
@@ -670,6 +697,7 @@
 <canvas id="particle-canvas"></canvas>
 <div id="progress-bar"></div>
 <button id="back-to-top" title="回到顶部">&#8593;</button>
+<div class="section-dots" id="section-dots"></div>
 
 <div class="container">
 
@@ -1219,6 +1247,75 @@ document.querySelectorAll('.tl-item').forEach((item, i) => {
     });
   }, { threshold: 0.3 });
   tlObs.observe(item);
+});
+
+// ── Click particle burst ──
+document.addEventListener('click', (e) => {
+  const count = 8;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'burst-particle';
+    const angle = (Math.PI * 2 * i) / count;
+    const dist = 30 + Math.random() * 20;
+    p.style.cssText = `
+      left: ${e.clientX}px; top: ${e.clientY}px;
+      width: 6px; height: 6px;
+      background: ${i % 2 ? '#06b6d4' : '#7c3aed'};
+      --bx: ${Math.cos(angle) * dist}px;
+      --by: ${Math.sin(angle) * dist}px;
+    `;
+    document.body.appendChild(p);
+    p.addEventListener('animationend', () => p.remove());
+  }
+});
+
+// ── Section dot navigation ──
+const dotContainer = document.getElementById('section-dots');
+const allSections = document.querySelectorAll('section[id]');
+allSections.forEach((sec, i) => {
+  const dot = document.createElement('div');
+  dot.className = 'section-dot';
+  dot.title = sec.querySelector('.section-title')?.textContent || '';
+  dot.addEventListener('click', () => sec.scrollIntoView({ behavior: 'smooth' }));
+  dotContainer.appendChild(dot);
+});
+const allDots = document.querySelectorAll('.section-dot');
+const dotObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const idx = Array.from(allSections).indexOf(e.target);
+      allDots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    }
+  });
+}, { threshold: 0.4 });
+allSections.forEach(s => dotObserver.observe(s));
+
+// ── Hero parallax on scroll ──
+const heroAvatar = document.querySelector('.hero .avatar img');
+const heroTitle = document.querySelector('.hero h1');
+const heroSub = document.querySelector('.hero .title');
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY;
+  if (scrollY < 600) {
+    heroAvatar.style.transform = `translateY(${scrollY * 0.15}px)`;
+    heroTitle.style.transform = `translateY(${scrollY * 0.1}px)`;
+    heroSub.style.transform = `translateY(${scrollY * 0.07}px)`;
+  }
+});
+
+// ── Magnetic buttons ──
+document.querySelectorAll('.social-link,.btn,button:not(#back-to-top):not(#menu-btn)').forEach(btn => {
+  btn.addEventListener('mousemove', (e) => {
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    btn.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`;
+    btn.style.transition = 'transform 0.1s ease-out';
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transform = 'translate(0,0)';
+    btn.style.transition = 'transform 0.3s ease';
+  });
 });
 
 console.log('✨ 页面动效已就绪（双向触发）');
