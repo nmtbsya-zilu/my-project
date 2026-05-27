@@ -134,19 +134,21 @@
     50%     { box-shadow: 0 0 80px rgba(6, 182, 212, 0.35); }
   }
   .hero h1 {
-    font-size: 42px;
-    font-weight: 800;
-    color: var(--heading);
-    letter-spacing: -1px;
-    margin-bottom: 12px;
+    font-size: clamp(48px, 8vw, 80px);
+    font-weight: 900;
+    background: linear-gradient(180deg, #ffffff 0%, #90b8d0 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -2px; line-height: 1.1;
+    margin-bottom: 16px;
   }
   .hero-tag {
     font-size: 11px; letter-spacing: 4px;
     color: var(--cyan); margin-bottom: 16px;
     font-weight: 600; text-transform: uppercase;
   }
+  .hero-line { width: 40px; height: 1px; background: var(--cyan); margin: 0 auto 20px; opacity: 0.5; }
   .hero .title {
-    font-size: 18px;
+    font-size: 16px;
     color: var(--cyan);
     font-weight: 500;
     margin-bottom: 8px;
@@ -154,9 +156,9 @@
   .hero .tagline {
     font-size: 15px;
     color: var(--text-muted);
-    max-width: 500px;
+    max-width: 480px;
     margin: 0 auto 32px;
-    line-height: 1.7;
+    line-height: 1.9; font-weight: 300;
   }
   .hero .stats {
     display: flex;
@@ -598,7 +600,7 @@
   }
   .float-char {
     display: inline-block;
-    background: var(--gradient);
+    background: linear-gradient(180deg, #ffffff 0%, #90b8d0 100%);
     background-size: 200% 200%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -608,7 +610,7 @@
   }
   .float-char:hover {
     animation: charFloat 3s ease-in-out infinite, charGradient 4s ease infinite, charBounce 0.4s ease;
-    filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.7));
+    filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.4));
   }
   @keyframes charBounce {
     0%   { transform: translateY(0) scale(1); }
@@ -756,9 +758,9 @@
   <!-- Hero -->
   <header class="hero"><div class="section-inner">
     <div class="avatar"><img src="avatar.jpg" alt="头像" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"></div>
-    <div class="hero-tag">EMBEDDED ENGINEERING</div>
+    <div class="hero-tag">EMBEDDED · 测控技术与仪器 · 大三在读</div>
     <h1 id="typing-target" class="typing-cursor">小</h1>
-    <div class="title">测控技术与仪器 · 大三在读 · 广西科技大学</div>
+    <div class="hero-line"></div>
     <p class="tagline">
       热爱嵌入式开发与机器人竞赛，专注于电路设计、嵌入式程序开发与仿真验证，
       在 ROBOCON 等国家级赛事中积累了丰富的实战经验。
