@@ -893,7 +893,7 @@
           </a>
         </div>
       </div>
-      <div class="contact-card qr-section">
+      <div class="contact-card qr-section tilt-card">
         <h3>联系方式</h3>
         <div class="qr-box">
           <img src="qrcode.jpg" alt="微信二维码" style="width:180px;height:180px;border-radius:12px;object-fit:cover;">
@@ -1228,23 +1228,17 @@ window.addEventListener('scroll', () => {
 });
 backToTop.addEventListener('click', () => scrollTo({ top: 0, behavior: 'smooth' }));
 
-// ── 3D Tilt effect (throttled) ──
+// ── 3D Tilt effect ──
 document.querySelectorAll('.tilt-card').forEach(card => {
-  let tiltPending = false;
   card.addEventListener('mousemove', (e) => {
-    if (tiltPending) return;
-    tiltPending = true;
-    requestAnimationFrame(() => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const midX = rect.width / 2;
-      const midY = rect.height / 2;
-      const rotateX = ((y - midY) / midY) * -3;
-      const rotateY = ((x - midX) / midX) * 3;
-      card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-      tiltPending = false;
-    });
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const midX = rect.width / 2;
+    const midY = rect.height / 2;
+    const rotateX = ((y - midY) / midY) * -3;
+    const rotateY = ((x - midX) / midX) * 3;
+    card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
   });
   card.addEventListener('mouseleave', () => {
     card.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg)';
