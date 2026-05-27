@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>个人主页</title>
+<title>肖鹏 - 个人主页</title>
 <style>
   :root {
     --bg: #0a0e17;
@@ -398,6 +398,123 @@
   }
   footer p { font-size: 13px; color: var(--text-muted); }
 
+  /* ── Particle canvas ── */
+  #particle-canvas {
+    position: fixed; inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── Scroll progress bar ── */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    background: var(--gradient);
+    z-index: 999;
+    transition: width 0.1s linear;
+  }
+
+  /* ── Back to top ── */
+  #back-to-top {
+    position: fixed;
+    bottom: 32px; right: 32px;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 99;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #back-to-top.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+  }
+  #back-to-top:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+  }
+
+  /* ── 3D Tilt base ── */
+  .tilt-card {
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out;
+  }
+
+  /* ── Certificates ── */
+  .cert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  .cert-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .cert-card:hover {
+    border-color: var(--cyan);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(6, 182, 212, 0.15);
+  }
+  .cert-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Lightbox */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.92);
+    align-items: center;
+    justify-content: center;
+  }
+  .lightbox.show { display: flex; }
+  .lightbox img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease;
+  }
+  .lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 32px;
+    font-size: 40px;
+    color: #fff;
+    cursor: pointer;
+    z-index: 1001;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+  .lightbox-close:hover { color: var(--cyan); }
+
+  /* Stats clickable */
+  .hero .stat.clickable {
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .hero .stat.clickable:hover { transform: scale(1.05); }
+
   /* ── Animations ── */
   @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(30px); }
@@ -419,6 +536,25 @@
     0%, 100% { box-shadow: 0 0 60px rgba(6, 182, 212, 0.25); }
     50%      { box-shadow: 0 0 90px rgba(6, 182, 212, 0.45); }
   }
+  @keyframes charFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    25%      { transform: translateY(-12px) scale(1.08); }
+    75%      { transform: translateY(4px) scale(0.96); }
+  }
+  @keyframes charGradient {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+  .float-char {
+    display: inline-block;
+    animation: charFloat 3s ease-in-out infinite;
+    background: var(--gradient);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: charFloat 3s ease-in-out infinite, charGradient 4s ease infinite;
+  }
+
   @keyframes slideDown {
     from { opacity: 0; transform: translateY(-10px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -500,36 +636,40 @@
 </head>
 <body>
 
+<canvas id="particle-canvas"></canvas>
+<div id="progress-bar"></div>
+<button id="back-to-top" title="回到顶部">&#8593;</button>
+
 <div class="container">
 
   <!-- Navigation -->
   <nav>
-    <div class="logo">&lt;<span>Dev</span>/&gt;</div>
+    <div class="logo">&lt;<span>XP</span>/&gt;</div>
     <button class="menu-btn" id="menu-btn" aria-label="菜单">
       <span></span><span></span><span></span>
     </button>
     <ul class="nav-links" id="nav-links">
       <li><a href="#about">关于</a></li>
-      <li><a href="#skills">技能</a></li>
       <li><a href="#experience">经历</a></li>
       <li><a href="#contact">联系</a></li>
+      <li><a href="#certificates">证书</a></li>
     </ul>
   </nav>
   <div class="nav-overlay" id="nav-overlay"></div>
 
   <!-- Hero -->
   <header class="hero">
-    <div class="avatar">N</div>
-    <h1 id="typing-target" class="typing-cursor">你</h1>
-    <div class="title">高级前端工程师</div>
+    <div class="avatar"><img src="avatar.jpg" alt="头像" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"></div>
+    <h1 id="typing-target" class="typing-cursor">小</h1>
+    <div class="title">测控技术与仪器 · 大三在读</div>
     <p class="tagline">
-      专注于构建高性能、优雅的 Web 应用。热衷于探索前端技术边界，
-      追求代码质量与用户体验的完美平衡。
+      热爱嵌入式开发与机器人竞赛，专注于电路设计、嵌入式程序开发与仿真验证，
+      在 ROBOCON 等国家级赛事中积累了丰富的实战经验。
     </p>
     <div class="stats">
-      <div class="stat"><div class="num" data-target="5" data-suffix="+">0</div><div class="label">年经验</div></div>
-      <div class="stat"><div class="num" data-target="30" data-suffix="+">0</div><div class="label">完成项目</div></div>
-      <div class="stat"><div class="num">React</div><div class="label">主力技术栈</div></div>
+      <div class="stat"><div class="num" data-target="6" data-suffix="+">0</div><div class="label">国家级奖项</div></div>
+      <div class="stat"><div class="num" data-target="5" data-suffix="+">0</div><div class="label">省级奖项</div></div>
+      <div class="stat"><div class="num">嵌入式</div><div class="label">主攻方向</div></div>
     </div>
   </header>
 
@@ -537,55 +677,55 @@
   <section id="about" class="reveal">
     <div class="section-label">01 / 关于我</div>
     <div class="section-title">自我介绍</div>
-    <div class="about-card">
+    <div class="about-card tilt-card">
       <div class="about-text">
         <p>
-          我是一名热爱技术的前端工程师，拥有丰富的 Web 应用开发经验。擅长使用 React、TypeScript 等技术栈构建复杂的单页面应用。
+          我是一名测控技术与仪器专业的大三学生，热爱嵌入式开发与机器人竞赛。具备电路设计、仿真验证、PCB 绘制及嵌入式程序开发的全流程实操能力。
         </p>
         <p>
-          关注前端工程化、性能优化以及用户体验。始终对新技术保持热情，乐于通过技术分享与开源贡献与社区共同成长。
+          在 ROBOCON 全国大学生机器人大赛中多次获得国家级奖项。善于在高压竞赛环境下快速定位和解决软硬件问题，具备良好的团队协作与工程实践能力。
         </p>
         <p>
-          工作之外，热爱摄影与旅行，相信技术源于生活，好的产品需要对世界的敏锐观察。
+          课余时间喜欢钻研嵌入式开源项目，持续学习前沿技术，期待在智能硬件与机器人领域深入发展。
         </p>
         <div class="skill-tags" id="skill-tags">
-          <span class="skill-tag highlight">React</span>
-          <span class="skill-tag highlight">TypeScript</span>
-          <span class="skill-tag">Vue.js</span>
-          <span class="skill-tag">Next.js</span>
-          <span class="skill-tag">Node.js</span>
-          <span class="skill-tag">Tailwind CSS</span>
-          <span class="skill-tag">Webpack/Vite</span>
-          <span class="skill-tag">GraphQL</span>
+          <span class="skill-tag highlight">Keil5</span>
+          <span class="skill-tag highlight">嘉立创 EDA</span>
+          <span class="skill-tag">Solidworks</span>
+          <span class="skill-tag">MATLAB</span>
+          <span class="skill-tag">Multisim</span>
+          <span class="skill-tag">Proteus</span>
+          <span class="skill-tag">嵌入式 C</span>
+          <span class="skill-tag">PCB 设计</span>
         </div>
       </div>
       <div class="about-info">
         <div class="info-item">
           <div class="info-icon">&#128188;</div>
           <div class="info-content">
-            <div class="info-label">当前职位</div>
-            <div class="info-value">高级前端工程师</div>
+            <div class="info-label">在读院校</div>
+            <div class="info-value">广西科技大学</div>
           </div>
         </div>
         <div class="info-item">
           <div class="info-icon">&#127979;</div>
           <div class="info-content">
-            <div class="info-label">所在城市</div>
-            <div class="info-value">中国 · 上海</div>
+            <div class="info-label">所学专业</div>
+            <div class="info-value">测控技术与仪器</div>
           </div>
         </div>
         <div class="info-item">
           <div class="info-icon">&#127891;</div>
           <div class="info-content">
-            <div class="info-label">毕业院校</div>
-            <div class="info-value">计算机科学与技术</div>
+            <div class="info-label">籍贯</div>
+            <div class="info-value">广西南宁</div>
           </div>
         </div>
         <div class="info-item">
           <div class="info-icon">&#128640;</div>
           <div class="info-content">
-            <div class="info-label">个人状态</div>
-            <div class="info-value">开放合作机会</div>
+            <div class="info-label">当前状态</div>
+            <div class="info-value">大三在读</div>
           </div>
         </div>
       </div>
@@ -594,80 +734,116 @@
 
   <!-- Experience -->
   <section id="experience" class="reveal">
-    <div class="section-label">02 / 经历</div>
-    <div class="section-title">工作经历</div>
-    <div class="about-card">
+    <div class="section-label">02 / 教育 &amp; 竞赛</div>
+    <div class="section-title">教育 &amp; 竞赛经历</div>
+    <div class="about-card tilt-card">
       <div class="timeline">
         <div class="tl-item">
-          <div class="tl-date">2023 — 至今</div>
-          <div class="tl-title">高级前端工程师 · XYZ Tech</div>
-          <div class="tl-desc">负责核心产品前端架构设计，主导组件库建设与性能优化专项，推动团队技术升级。</div>
+          <div class="tl-date">2023 — 2027</div>
+          <div class="tl-title">广西科技大学 · 测控技术与仪器</div>
+          <div class="tl-desc">本科在读，系统学习嵌入式系统、传感器技术、自动控制原理等核心课程，具备扎实的软硬件理论基础。</div>
         </div>
         <div class="tl-item">
-          <div class="tl-date">2021 — 2023</div>
-          <div class="tl-title">前端开发工程师 · ABC 科技</div>
-          <div class="tl-desc">参与多款 SaaS 产品前端开发，负责复杂交互场景实现与前端监控体系搭建。</div>
+          <div class="tl-date">2024 — 2025</div>
+          <div class="tl-title">ROBOCON 学科竞赛项目组 · 核心成员</div>
+          <div class="tl-desc">负责机器人嵌入式程序开发与调试，运用 Keil5 实现运动控制与信号稳定性优化，助力团队斩获多项国家级奖项。</div>
         </div>
         <div class="tl-item">
-          <div class="tl-date">2019 — 2021</div>
-          <div class="tl-title">初级前端工程师 · 创业团队</div>
-          <div class="tl-desc">从零到一搭建前端工程体系，快速迭代产品，积累了全流程开发经验。</div>
+          <div class="tl-date">2024 — 至今</div>
+          <div class="tl-title">电子设计竞赛 · 校级奖项</div>
+          <div class="tl-desc">参与校级电子设计竞赛，完成电路设计、仿真验证与 PCB 绘制，获得校级二等奖、三等奖等多项荣誉。</div>
         </div>
       </div>
     </div>
   </section>
-
-  <!-- Contact -->
+<!-- Contact -->
   <section id="contact" class="reveal">
     <div class="section-label">03 / 联系</div>
     <div class="section-title">联系方式</div>
     <div class="contact-grid">
-      <div class="contact-card">
+      <div class="contact-card tilt-card">
         <h3>找到我</h3>
         <div class="social-links">
-          <a href="https://github.com" target="_blank" class="social-link">
+          <a href="#" class="social-link">
             <div class="s-icon github">&#x1F4BB;</div>
             <div class="s-info">
-              <div class="s-name">GitHub</div>
-              <div class="s-value">github.com/yourname</div>
+              <div class="s-name">电话</div>
+              <div class="s-value">18078104046</div>
             </div>
             <span class="s-arrow">&nearr;</span>
           </a>
-          <a href="mailto:hello@example.com" class="social-link">
+          <a href="mailto:2142807174@qq.com" class="social-link">
             <div class="s-icon email">&#x2709;</div>
             <div class="s-info">
               <div class="s-name">Email</div>
-              <div class="s-value">hello@example.com</div>
+              <div class="s-value">2142807174@qq.com</div>
+            </div>
+            <span class="s-arrow">&nearr;</span>
+          </a>
+          <a href="mailto:nmtbsya@gmail.com" class="social-link">
+            <div class="s-icon email">&#9993;</div>
+            <div class="s-info">
+              <div class="s-name">Gmail</div>
+              <div class="s-value">nmtbsya@gmail.com</div>
             </div>
             <span class="s-arrow">&nearr;</span>
           </a>
           <a href="#" class="social-link">
             <div class="s-icon wechat">&#x1F4AC;</div>
             <div class="s-info">
-              <div class="s-name">微信</div>
-              <div class="s-value">扫描右侧二维码添加</div>
+              <div class="s-name">QQ</div>
+              <div class="s-value">2142807174</div>
             </div>
             <span class="s-arrow">&nearr;</span>
           </a>
         </div>
       </div>
       <div class="contact-card qr-section">
-        <h3>扫码加微信</h3>
+        <h3>联系方式</h3>
         <div class="qr-box">
-          <div class="qr-placeholder">
-            <div class="qr-icon">&#x1F4F1;</div>
-            <div class="qr-text">微信二维码</div>
-          </div>
+          <img src="qrcode.jpg" alt="微信二维码" style="width:180px;height:180px;border-radius:12px;object-fit:cover;">
         </div>
-        <p class="qr-hint">请将您的微信二维码图片<br>替换至此处</p>
+        <p class="qr-hint">扫描二维码<br>添加微信</p>
       </div>
     </div>
   </section>
 
+
+
+  <!-- Certificates -->
+  <section id="certificates" class="reveal">
+    <div class="section-label">04 / 证书</div>
+    <div class="section-title">荣誉证书</div>
+    <div class="cert-grid">
+      <div class="cert-card tilt-card">
+        <img src="certs/2025-RC-S-S-L36-45195173.png" alt="证书1" loading="lazy">
+      </div>
+      <div class="cert-card tilt-card">
+        <img src="certs/2025-RC-S-S-L36-72639645.png" alt="证书2" loading="lazy">
+      </div>
+      <div class="cert-card tilt-card">
+        <img src="certs/2025-RC-S-S-L36-89038782.png" alt="证书3" loading="lazy">
+      </div>
+      <div class="cert-card tilt-card">
+        <img src="certs/35c6056d5f7930d8909d5bff424bdd69.png" alt="证书4" loading="lazy">
+      </div>
+      <div class="cert-card tilt-card">
+        <img src="certs/ed546c6943633c069fd97ed0e7409eff.png" alt="证书5" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <span class="lightbox-close" id="lightbox-close">&times;</span>
+    <img id="lightbox-img" src="" alt="证书预览">
+  </div>
+
+  
   <!-- Footer -->
   <footer class="reveal">
     <div class="divider"></div>
-    <p>&copy; 2024 Nick. Made with &#9829; and code.</p>
+    <p>&copy; 2024 Nick. Made with &#9829; and code.copy; 2026 肖鹏. Made with &copy; 2024 Nick. Made with &#9829; and code.#9829; and code.</p>
   </footer>
 
 </div>
@@ -698,7 +874,7 @@ navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMen
 
 // ── Typing effect (one-shot on page load) ──
 const typingEl = document.getElementById('typing-target');
-const fullText = '你好，我是 Nick';
+const fullText = '小月';
 let charIdx = 0;
 
 function typeChar() {
@@ -708,6 +884,15 @@ function typeChar() {
     setTimeout(typeChar, 100 + Math.random() * 60);
   } else {
     typingEl.classList.remove('typing-cursor');
+    // Split into individual chars for floating animation
+    typingEl.innerHTML = '';
+    fullText.split('').forEach((ch, i) => {
+      const span = document.createElement('span');
+      span.textContent = ch;
+      span.className = 'float-char';
+      span.style.animationDelay = i * 0.25 + 's';
+      typingEl.appendChild(span);
+    });
   }
 }
 setTimeout(typeChar, 400);
@@ -848,6 +1033,144 @@ const skillObserver = new IntersectionObserver((entries) => {
 skillTags.forEach(tag => {
   tag.style.opacity = '0';
   skillObserver.observe(tag);
+});
+
+// ── Certificate lightbox ──
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
+const lightboxClose = document.getElementById('lightbox-close');
+
+document.querySelectorAll('.cert-card img').forEach(img => {
+  img.addEventListener('click', () => {
+    lightboxImg.src = img.src;
+    lightbox.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  });
+});
+
+function closeLightbox() {
+  lightbox.classList.remove('show');
+  document.body.style.overflow = '';
+}
+lightboxClose.addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', (e) => {
+  if (e.target === lightbox) closeLightbox();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+// ── Stats click → scroll to certificates ──
+const certSection = document.getElementById('certificates');
+document.querySelectorAll('.hero .stat').forEach(stat => {
+  const label = stat.querySelector('.label');
+  if (label && (label.textContent.includes('国家级') || label.textContent.includes('省级'))) {
+    stat.classList.add('clickable');
+    stat.addEventListener('click', () => {
+      certSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+});
+
+// ── Particle canvas background ──
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+const particleCount = 60;
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  initParticles();
+});
+
+function initParticles() {
+  particles = [];
+  for (let i = 0; i < particleCount; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.5 + 0.5,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      opacity: Math.random() * 0.5 + 0.1
+    });
+  }
+}
+initParticles();
+
+function drawLine(a, b) {
+  const dx = a.x - b.x;
+  const dy = a.y - b.y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  if (dist < 120) {
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.strokeStyle = `rgba(6, 182, 212, ${0.06 * (1 - dist / 120)})`;
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+}
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach((p, i) => {
+    p.x += p.vx;
+    p.y += p.vy;
+    if (p.x < 0) p.x = canvas.width;
+    if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height;
+    if (p.y > canvas.height) p.y = 0;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(6, 182, 212, ${p.opacity})`;
+    ctx.fill();
+    for (let j = i + 1; j < particles.length; j++) {
+      drawLine(p, particles[j]);
+    }
+  });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ── Scroll progress bar ──
+const progressBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const scrollTop = document.documentElement.scrollTop;
+  const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+  progressBar.style.width = progress + '%';
+});
+
+// ── Back to top ──
+const backToTop = document.getElementById('back-to-top');
+window.addEventListener('scroll', () => {
+  backToTop.classList.toggle('show', window.scrollY > 500);
+});
+backToTop.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ── 3D Tilt effect ──
+document.querySelectorAll('.tilt-card').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const midX = rect.width / 2;
+    const midY = rect.height / 2;
+    const rotateX = ((y - midY) / midY) * -6;
+    const rotateY = ((x - midX) / midX) * 6;
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+  });
 });
 
 console.log('✨ 页面动效已就绪（双向触发）');
