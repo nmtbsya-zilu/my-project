@@ -1290,16 +1290,14 @@ const dotObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.4 });
 allSections.forEach(s => dotObserver.observe(s));
 
-// ── Hero parallax on scroll ──
-const heroAvatar = document.querySelector('.hero .avatar img');
+// ── Hero parallax on scroll (title only, avatar fixed) ──
 const heroTitle = document.querySelector('.hero h1');
 const heroSub = document.querySelector('.hero .title');
 window.addEventListener('scroll', () => {
   const scrollY = window.scrollY;
   if (scrollY < 600) {
-    heroAvatar.style.transform = `translateY(${scrollY * 0.15}px)`;
-    heroTitle.style.transform = `translateY(${scrollY * 0.1}px)`;
-    heroSub.style.transform = `translateY(${scrollY * 0.07}px)`;
+    heroTitle.style.transform = `translateY(${scrollY * 0.08}px)`;
+    heroSub.style.transform = `translateY(${scrollY * 0.05}px)`;
   }
 });
 
