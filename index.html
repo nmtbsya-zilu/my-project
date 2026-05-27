@@ -115,26 +115,15 @@
     text-align: center;
   }
   .avatar {
-    width: 100px; height: 100px;
+    width: 96px; height: 96px;
     border-radius: 50%;
-    background: var(--gradient);
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 36px;
-    color: #fff;
-    font-weight: 700;
     margin-bottom: 28px;
-    box-shadow: 0 0 60px rgba(6, 182, 212, 0.25);
-    position: relative;
-  }
-  .avatar::after {
-    content: "";
-    position: absolute;
-    inset: -3px;
-    border-radius: 50%;
-    background: var(--gradient);
-    z-index: -1;
+    border: 2px solid rgba(6, 182, 212, 0.2);
+    box-shadow: 0 0 60px rgba(6, 182, 212, 0.15);
+    background: transparent;
   }
   .hero h1 {
     font-size: 42px;
@@ -638,8 +627,7 @@
   }
 
   .avatar {
-    animation: pulse-glow 3s ease-in-out infinite, avatarFloat 4s ease-in-out infinite;
-    position: relative;
+    animation: avatarFloat 4s ease-in-out infinite;
   }
   @keyframes avatarFloat {
     0%,100% { transform: translateY(0); }
