@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>子路</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060b14;
+  --surface: #0c1424;
+  --surface2: #111d35;
+  --border: #1a2d4a;
+  --text: #c8d6e5;
+  --text-dim: #6b7d99;
+  --cyan: #00d4ff;
+  --violet: #8b5cf6;
+  --glow-cyan: rgba(0,212,255,0.3);
+  --glow-violet: rgba(139,92,246,0.25);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans SC', sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ── Background Layers ── */
+.bg-grid {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 30%, black 40%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 30%, black 40%, transparent 70%);
+}
+
+.bg-orb { pointer-events:none; position:fixed; border-radius:50%; filter:blur(140px); z-index:0; }
+.bg-orb.cyan  { width:500px; height:500px; background:#00d4ff; opacity:0.04; top:-100px; left:-100px; }
+.bg-orb.violet { width:400px; height:400px; background:#8b5cf6; opacity:0.03; bottom:-80px; right:-80px; }
+
+/* ── Noise overlay ── */
+.noise {
+  position:fixed; inset:0; pointer-events:none; z-index:0; opacity:0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Layout ── */
+.page { position:relative; z-index:1; }
+
+/* ── Navigation ── */
+.nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  padding:16px 32px;
+  display:flex; justify-content:space-between; align-items:center;
+  transition: all 0.35s;
+}
+.nav.scrolled {
+  background: rgba(6,11,20,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom:1px solid rgba(0,212,255,0.08);
+  padding:10px 32px;
+}
+.nav-logo {
+  font-family:'Orbitron',monospace; font-size:20px; font-weight:700;
+  background: linear-gradient(135deg, #00d4ff, #8b5cf6);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  letter-spacing:2px;
+}
+.nav-links { display:flex; gap:36px; list-style:none; }
+.nav-links a {
+  color:var(--text-dim); text-decoration:none; font-size:13px;
+  font-weight:500; letter-spacing:1px; transition:color 0.25s;
+  position:relative;
+}
+.nav-links a::after {
+  content:''; position:absolute; bottom:-4px; left:0;
+  width:0; height:1px; background:var(--cyan);
+  transition:width 0.3s;
+}
+.nav-links a:hover { color:var(--cyan); }
+.nav-links a:hover::after { width:100%; }
+.nav-links a.active { color:var(--cyan); }
+
+/* ── Menu btn ── */
+.menu-btn { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; z-index:101; padding:4px; }
+.menu-btn span { display:block; width:22px; height:1.5px; background:var(--text); border-radius:1px; transition:all 0.3s; }
+.menu-btn.active span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+.menu-btn.active span:nth-child(2) { opacity:0; }
+.menu-btn.active span:nth-child(3) { transform:rotate(-45deg) translate(4px,-4px); }
+
+/* ── Hero ── */
+.hero {
+  min-height:100vh; display:flex; flex-direction:column;
+  justify-content:center; align-items:center; text-align:center;
+  padding:0 32px; position:relative;
+}
+.hero-avatar-wrap {
+  position:relative; margin-bottom:36px;
+}
+.hero-avatar {
+  width:110px; height:110px; border-radius:50%; object-fit:cover;
+  border:2px solid rgba(0,212,255,0.3);
+  box-shadow: 0 0 80px var(--glow-cyan), 0 0 160px rgba(0,212,255,0.1);
+  animation: avatarFloat 4s ease-in-out infinite;
+}
+@keyframes avatarFloat {
+  0%,100% { transform:translateY(0); }
+  50%     { transform:translateY(-8px); }
+}
+.hero-avatar-ring {
+  position:absolute; inset:-6px; border-radius:50%;
+  border:1px solid rgba(0,212,255,0.2);
+  animation: ringSpin 10s linear infinite;
+}
+@keyframes ringSpin { to { transform:rotate(360deg); } }
+
+.hero-tag {
+  font-family:'Orbitron',monospace; font-size:11px; letter-spacing:4px;
+  color:var(--cyan); margin-bottom:20px;
+  text-transform:uppercase;
+  animation: fadeIn 0.8s ease;
+}
+.hero-name {
+  font-size: clamp(48px, 8vw, 80px); font-weight:900;
+  background: linear-gradient(135deg, #00d4ff 0%, #8b5cf6 40%, #00d4ff 100%);
+  background-size:200% 200%;
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  animation: gradFlow 4s ease infinite, fadeIn 1s ease;
+  letter-spacing:-2px; line-height:1.1;
+}
+@keyframes gradFlow {
+  0%,100% { background-position:0% 50%; }
+  50%     { background-position:100% 50%; }
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+.hero-sub {
+  font-size:17px; color:var(--text-dim); margin-top:12px;
+  font-weight:300; animation:fadeIn 1s ease 0.2s both;
+}
+.hero-line {
+  width:60px; height:2px; background:var(--gradient);
+  margin:24px auto; animation:fadeIn 1s ease 0.4s both;
+}
+.hero-desc {
+  max-width:480px; color:var(--text-dim); font-size:14px;
+  line-height:1.8; font-weight:300;
+  animation:fadeIn 1s ease 0.6s both;
+}
+.hero-stats {
+  display:flex; gap:48px; margin-top:40px;
+  animation:fadeIn 1s ease 0.8s both;
+}
+.hero-stat { text-align:center; }
+.hero-stat .num {
+  font-family:'Orbitron',monospace; font-size:32px; font-weight:700;
+  background: linear-gradient(135deg, #00d4ff, #8b5cf6);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.hero-stat .lbl { font-size:12px; color:var(--text-dim); margin-top:4px; letter-spacing:1px; }
+
+.scroll-indicator {
+  position:absolute; bottom:40px;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  animation: fadeIn 1.2s ease, bounceDown 2s ease infinite 1.5s;
+}
+@keyframes bounceDown { 0%,100% { transform:translateY(0); } 50% { transform:translateY(8px); } }
+.scroll-indicator span { width:1px; height:30px; background:var(--border); }
+.scroll-indicator .arrow { width:8px; height:8px; border-right:1px solid var(--cyan); border-bottom:1px solid var(--cyan); transform:rotate(45deg); }
+
+/* ── Sections ── */
+.section { padding:100px 32px; max-width:1000px; margin:0 auto; }
+.section-label {
+  font-family:'Orbitron',monospace; font-size:10px; letter-spacing:5px;
+  color:var(--cyan); margin-bottom:12px; text-transform:uppercase;
+}
+.section-heading {
+  font-size:clamp(28px,5vw,42px); font-weight:700;
+  color:#e8f0f8; letter-spacing:-1px; margin-bottom:48px;
+}
+
+/* ── About Card ── */
+.about-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:24px;
+}
+.about-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; padding:32px;
+  transition:all 0.3s;
+}
+.about-card:hover {
+  border-color:rgba(0,212,255,0.3);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3), 0 0 60px rgba(0,212,255,0.05);
+}
+.about-card h3 {
+  font-family:'Orbitron',monospace; font-size:11px; letter-spacing:3px;
+  color:var(--cyan); margin-bottom:20px; text-transform:uppercase;
+}
+.about-text p {
+  color:var(--text-dim); font-size:14px; line-height:1.9; font-weight:300;
+  margin-bottom:12px;
+}
+.about-text p:last-child { margin-bottom:0; }
+
+/* Info items */
+.info-list { display:flex; flex-direction:column; gap:10px; }
+.info-item {
+  display:flex; align-items:center; gap:14px;
+  padding:12px 16px; border-radius:10px;
+  background:rgba(255,255,255,0.015);
+  border:1px solid rgba(255,255,255,0.03);
+  transition:all 0.25s;
+}
+.info-item:hover { border-color:rgba(0,212,255,0.15); background:rgba(0,212,255,0.02); }
+.info-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; background:rgba(0,212,255,0.06); flex-shrink:0; }
+.info-text .info-label { font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:2px; }
+.info-text .info-value { font-size:14px; color:var(--text); font-weight:500; }
+
+/* Skills */
+.skill-cloud { display:flex; flex-wrap:wrap; gap:8px; }
+.skill-badge {
+  padding:6px 16px; border-radius:20px; font-size:12px; font-weight:500;
+  border:1px solid var(--border); color:var(--text-dim);
+  transition:all 0.3s; cursor:default;
+}
+.skill-badge:hover {
+  border-color:var(--cyan); color:var(--cyan);
+  box-shadow: 0 0 20px rgba(0,212,255,0.1);
+  transform:translateY(-2px);
+}
+.skill-badge.primary { border-color:rgba(139,92,246,0.4); color:#b794f4; background:rgba(139,92,246,0.06); }
+
+/* Timeline */
+.timeline { position:relative; padding-left:32px; }
+.timeline::before { content:''; position:absolute; left:0; top:0; bottom:0; width:1px; background:var(--border); }
+.tl-item { position:relative; margin-bottom:28px; padding-bottom:28px; border-bottom:1px solid rgba(255,255,255,0.02); }
+.tl-item:last-child { margin-bottom:0; padding-bottom:0; border-bottom:none; }
+.tl-dot { position:absolute; left:calc(-32px - 2.5px); top:4px; width:7px; height:7px; border-radius:50%; background:var(--cyan); border:2px solid var(--bg); box-shadow:0 0 12px var(--glow-cyan); z-index:2; }
+.tl-date { font-family:'Orbitron',monospace; font-size:11px; color:var(--cyan); letter-spacing:1px; margin-bottom:6px; }
+.tl-title { font-size:16px; font-weight:600; color:#e8f0f8; margin-bottom:4px; }
+.tl-desc { font-size:13px; color:var(--text-dim); line-height:1.7; font-weight:300; }
+
+/* Cert Gallery */
+.cert-scroll { display:flex; gap:16px; overflow-x:auto; padding-bottom:12px; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
+.cert-scroll::-webkit-scrollbar { height:4px; }
+.cert-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+.cert-card { flex:0 0 220px; border-radius:12px; overflow:hidden; border:1px solid var(--border); cursor:pointer; transition:all 0.3s; scroll-snap-align:start; }
+.cert-card:hover { border-color:var(--cyan); transform:translateY(-6px); box-shadow:0 12px 40px rgba(0,0,0,0.4), 0 0 30px rgba(0,212,255,0.08); }
+.cert-card img { width:100%; display:block; }
+
+/* Contact */
+.contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.contact-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:32px; }
+.contact-card h3 { font-family:'Orbitron',monospace; font-size:11px; letter-spacing:3px; color:var(--cyan); margin-bottom:20px; text-transform:uppercase; }
+.contact-links { display:flex; flex-direction:column; gap:8px; }
+.contact-link {
+  display:flex; align-items:center; gap:12px; padding:12px 16px;
+  border-radius:10px; text-decoration:none; color:var(--text);
+  border:1px solid transparent; transition:all 0.25s;
+  background:rgba(255,255,255,0.01);
+}
+.contact-link:hover { border-color:rgba(0,212,255,0.2); background:rgba(0,212,255,0.02); transform:translateX(4px); }
+.contact-link .c-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.c-icon.phone { background:rgba(0,212,255,0.08); }
+.c-icon.email { background:rgba(139,92,246,0.08); }
+.c-icon.gmail { background:rgba(220,38,38,0.08); }
+.c-icon.qq    { background:rgba(34,197,94,0.08); }
+.contact-link .c-info { flex:1; }
+.contact-link .c-name { font-size:13px; font-weight:500; }
+.contact-link .c-val  { font-size:11px; color:var(--text-dim); margin-top:2px; }
+
+/* QR */
+.qr-wrap { display:flex; flex-direction:column; align-items:center; text-align:center; }
+.qr-img { width:160px; height:160px; border-radius:12px; border:1px solid var(--border); }
+.qr-hint { font-size:11px; color:var(--text-dim); margin-top:10px; }
+
+/* Lightbox */
+.lb { position:fixed; inset:0; z-index:999; background:rgba(4,8,18,0.96); display:none; align-items:center; justify-content:center; }
+.lb.show { display:flex; }
+.lb img { max-width:92vw; max-height:88vh; border-radius:8px; }
+.lb-close { position:absolute; top:24px; right:32px; font-size:36px; color:#fff; cursor:pointer; transition:color 0.2s; }
+.lb-close:hover { color:var(--cyan); }
+
+/* Footer */
+.footer { text-align:center; padding:60px 32px; border-top:1px solid var(--border); }
+.footer p { font-size:12px; color:var(--text-dim); letter-spacing:1px; }
+
+/* ── Animations ── */
+.reveal { opacity:0; transform:translateY(30px); transition:all 0.7s cubic-bezier(0.16,1,0.3,1); }
+.reveal.visible { opacity:1; transform:translateY(0); }
+
+/* ── Click ripple ── */
+.click-ripple {
+  position:fixed; pointer-events:none; z-index:9999; border-radius:50%;
+  border:1px solid var(--cyan); animation:ripOut 0.6s ease-out forwards;
+}
+@keyframes ripOut { 0% { width:0; height:0; opacity:0.8; } 100% { width:80px; height:80px; opacity:0; margin:-40px; } }
+
+/* ── Responsive ── */
+@media (max-width:768px) {
+  .nav-links { display:none; }
+  .menu-btn { display:flex; }
+  .about-grid, .contact-grid { grid-template-columns:1fr; }
+  .hero-stats { gap:28px; }
+  .section { padding:60px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-orb cyan"></div>
+<div class="bg-orb violet"></div>
+<div class="noise"></div>
+
+<div class="page">
+  <nav class="nav" id="nav">
+    <div class="nav-logo">ZILU</div>
+    <button class="menu-btn" id="menu-btn"><span></span><span></span><span></span></button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#about">关于</a></li>
+      <li><a href="#experience">经历</a></li>
+      <li><a href="#certificates">证书</a></li>
+      <li><a href="#contact">联系</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div class="hero-avatar-wrap">
+      <div class="hero-avatar-ring"></div>
+      <img class="hero-avatar" src="avatar.jpg" alt="子路">
+    </div>
+    <div class="hero-tag">Embedded Engineering</div>
+    <h1 class="hero-name">子路</h1>
+    <div class="hero-sub">测控技术与仪器 · 大三在读 · 广西科技大学</div>
+    <div class="hero-line"></div>
+    <p class="hero-desc">热爱嵌入式开发与机器人竞赛，专注于电路设计、嵌入式程序开发与仿真验证，在 ROBO&#173;CON 等国家级赛事中积累了丰富的实战经验。</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num" data-to="6" data-suf="+">0</div><div class="lbl">国家级奖项</div></div>
+      <div class="hero-stat"><div class="num" data-to="5" data-suf="+">0</div><div class="lbl">省级奖项</div></div>
+      <div class="hero-stat"><div class="num" data-to="3" data-suf="+">0</div><div class="lbl">校级奖项</div></div>
+    </div>
+    <div class="scroll-indicator"><span></span><div class="arrow"></div></div>
+  </section>
+
+  <section class="section reveal" id="about">
+    <div class="section-label">01 · About</div>
+    <div class="section-heading">关于我</div>
+    <div class="about-grid">
+      <div class="about-card">
+        <h3>个人简介</h3>
+        <div class="about-text">
+          <p>我是一名测控技术与仪器专业的大三学生，热爱嵌入式开发与机器人竞赛。具备电路设计、仿真验证、PCB 绘制及嵌入式程序开发的全流程实操能力。</p>
+          <p>在 ROBOCON 全国大学生机器人大赛中多次获得国家级奖项。善于在高压竞赛环境下快速定位和解决软硬件问题，具备良好的团队协作与工程实践能力。</p>
+          <p>课余时间喜欢钻研嵌入式开源项目，持续学习前沿技术，期待在智能硬件与机器人领域深入发展。</p>
+        </div>
+      </div>
+      <div class="about-card">
+        <h3>资料 & 技能</h3>
+        <div class="info-list" style="margin-bottom:24px;">
+          <div class="info-item"><div class="info-icon">&#127979;</div><div class="info-text"><div class="info-label">院校</div><div class="info-value">广西科技大学</div></div></div>
+          <div class="info-item"><div class="info-icon">&#128218;</div><div class="info-text"><div class="info-label">专业</div><div class="info-value">测控技术与仪器</div></div></div>
+          <div class="info-item"><div class="info-icon">&#127968;</div><div class="info-text"><div class="info-label">籍贯</div><div class="info-value">广西南宁</div></div></div>
+        </div>
+        <div class="skill-cloud">
+          <span class="skill-badge primary">Keil5</span>
+          <span class="skill-badge primary">嘉立创 EDA</span>
+          <span class="skill-badge">Solidworks</span>
+          <span class="skill-badge">MATLAB</span>
+          <span class="skill-badge">Multisim</span>
+          <span class="skill-badge">Proteus</span>
+          <span class="skill-badge">嵌入式 C</span>
+          <span class="skill-badge">PCB 设计</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section reveal" id="experience">
+    <div class="section-label">02 · Journey</div>
+    <div class="section-heading">教育 & 竞赛经历</div>
+    <div class="about-card">
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2023 — 2027</div><div class="tl-title">广西科技大学 · 测控技术与仪器</div><div class="tl-desc">本科在读，系统学习嵌入式系统、传感器技术、自动控制原理等核心课程，具备扎实的软硬件理论基础。</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2024 — 2025</div><div class="tl-title">ROBOCON 学科竞赛项目组 · 核心成员</div><div class="tl-desc">负责机器人嵌入式程序开发与调试，运用 Keil5 实现运动控制与信号稳定性优化，助力团队斩获多项国家级奖项。</div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div class="tl-date">2024 — 至今</div><div class="tl-title">电子设计竞赛 · 校级奖项</div><div class="tl-desc">参与校级电子设计竞赛，完成电路设计、仿真验证与 PCB 绘制，获得校级二等奖、三等奖等多项荣誉。</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section reveal" id="certificates">
+    <div class="section-label">03 · Honors</div>
+    <div class="section-heading">荣誉证书</div>
+    <div class="cert-scroll">
+      <div class="cert-card"><img src="certs/2025-RC-S-S-L36-45195173.png" alt="证书" loading="lazy" onclick="openLb(this.src)"></div>
+      <div class="cert-card"><img src="certs/2025-RC-S-S-L36-72639645.png" alt="证书" loading="lazy" onclick="openLb(this.src)"></div>
+      <div class="cert-card"><img src="certs/2025-RC-S-S-L36-89038782.png" alt="证书" loading="lazy" onclick="openLb(this.src)"></div>
+      <div class="cert-card"><img src="certs/2024-1104-995bfbaf-9b8e-4523-925d-0169fac3635a.png" alt="证书" loading="lazy" onclick="openLb(this.src)"></div>
+      <div class="cert-card"><img src="certs/2025-1121-2b5a5a2e-19c7-4816-aa47-dc29d7f76c1b.png" alt="证书" loading="lazy" onclick="openLb(this.src)"></div>
+    </div>
+  </section>
+
+  <section class="section reveal" id="contact">
+    <div class="section-label">04 · Contact</div>
+    <div class="section-heading">联系方式</div>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <h3>找到我</h3>
+        <div class="contact-links">
+          <a href="#" class="contact-link"><div class="c-icon phone">&#128222;</div><div class="c-info"><div class="c-name">电话</div><div class="c-val">xxxx</div></div></a>
+          <a href="mailto:2142807174@qq.com" class="contact-link"><div class="c-icon email">&#9993;</div><div class="c-info"><div class="c-name">QQ 邮箱</div><div class="c-val">2142807174@qq.com</div></div></a>
+          <a href="mailto:nmtbsya@gmail.com" class="contact-link"><div class="c-icon gmail">&#9993;</div><div class="c-info"><div class="c-name">Gmail</div><div class="c-val">nmtbsya@gmail.com</div></div></a>
+          <a href="#" class="contact-link"><div class="c-icon qq">&#128172;</div><div class="c-info"><div class="c-name">QQ</div><div class="c-val">2142807174</div></div></a>
+        </div>
+      </div>
+      <div class="contact-card qr-wrap">
+        <h3>微信</h3>
+        <img class="qr-img" src="qrcode.jpg" alt="微信二维码">
+        <div class="qr-hint">扫描二维码添加微信</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>&copy; 2026 子路 · Made with passion</p>
+  </footer>
+</div>
+
+<div class="lb" id="lb"><span class="lb-close" id="lb-close">&times;</span><img id="lb-img" src=""></div>
+
+<script>
+// Nav scroll effect
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 40));
+
+// Scroll reveal
+const ro = new IntersectionObserver((es) => es.forEach(e => e.target.classList.toggle('visible', e.isIntersecting)), { threshold:0.15, rootMargin:'0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+// Counter animation
+const counterMap = new WeakMap();
+const co = new IntersectionObserver((es) => es.forEach(e => {
+  if (e.isIntersecting) {
+    const el = e.target, to = +el.dataset.to, suf = el.dataset.suf||'';
+    const st = performance.now();
+    const s = { raf:0 }; counterMap.set(el, s);
+    function tick(now) {
+      const p = Math.min((now-st)/1500, 1);
+      el.textContent = Math.round((1-Math.pow(1-p,3))*to) + suf;
+      if (p<1) s.raf = requestAnimationFrame(tick);
+    }
+    s.raf = requestAnimationFrame(tick);
+  } else {
+    const s = counterMap.get(el); if (s) { cancelAnimationFrame(s.raf); }
+    el.textContent = '0';
+  }
+}), { threshold:0.5 });
+document.querySelectorAll('.num[data-to]').forEach(n => co.observe(n));
+
+// Click ripple
+document.addEventListener('click', (e) => {
+  const r = document.createElement('div'); r.className='click-ripple';
+  r.style.left = e.clientX+'px'; r.style.top = e.clientY+'px';
+  document.body.appendChild(r);
+  r.addEventListener('animationend', () => r.remove());
+});
+
+// Lightbox
+const lb = document.getElementById('lb'), lbImg = document.getElementById('lb-img');
+function openLb(src) { lbImg.src=src; lb.classList.add('show'); document.body.style.overflow='hidden'; }
+function closeLb() { lb.classList.remove('show'); document.body.style.overflow=''; }
+document.getElementById('lb-close').addEventListener('click', closeLb);
+lb.addEventListener('click', e => { if (e.target===lb) closeLb(); });
+document.addEventListener('keydown', e => { if (e.key==='Escape') closeLb(); });
+
+// Smooth scroll
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    const t = document.querySelector(this.getAttribute('href'));
+    if (t) t.scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+});
+
+// Active nav
+const secs = document.querySelectorAll('section[id], .hero');
+const navAs = document.querySelectorAll('.nav-links a');
+new IntersectionObserver((es) => es.forEach(e => {
+  if (e.isIntersecting) {
+    const id = e.target.id || 'hero';
+    navAs.forEach(a => a.classList.toggle('active', a.getAttribute('href')==='#'+id || (id==='hero' && a.getAttribute('href')==='#about')));
+  }
+}), { threshold:0, rootMargin:'-40% 0px -55% 0px' }).observe(document.querySelector('.hero'));
+secs.forEach(s => { const obs = new IntersectionObserver((es) => es.forEach(e => {
+  if (e.isIntersecting) {
+    const id = e.target.id || 'hero';
+    navAs.forEach(a => a.classList.toggle('active', a.getAttribute('href')==='#'+id || (id==='hero' && a.getAttribute('href')==='#about')));
+  }
+}), { threshold:0, rootMargin:'-40% 0px -55% 0px' }); obs.observe(s); });
+
+// Mobile menu
+const mb = document.getElementById('menu-btn');
+const nl = document.getElementById('nav-links');
+mb.addEventListener('click', () => { mb.classList.toggle('active'); nl.classList.toggle('open'); });
+nl.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { mb.classList.remove('active'); nl.classList.remove('open'); }));
+</script>
+
+<style>
+@media (max-width:768px) {
+  #nav-links { position:fixed; top:0; right:-100%; width:240px; height:100vh; flex-direction:column;
+    background:rgba(6,11,20,0.98); backdrop-filter:blur(20px); padding:80px 28px 40px; gap:20px;
+    border-left:1px solid var(--border); transition:right 0.35s cubic-bezier(0.16,1,0.3,1); z-index:100; }
+  #nav-links.open { right:0; }
+  #nav-links a { font-size:16px; }
+}
+</style>
+
+</body>
+</html>
