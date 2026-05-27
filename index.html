@@ -180,7 +180,7 @@
   }
 
   /* ── Section ── */
-  section { padding: 60px 0; width: 100%; }
+  section { padding: 60px 0; width: 100%; scroll-margin-top: 70px; }
   header.hero { width: 100%; }
   footer { width: 100%; }
   .section-label {
@@ -856,7 +856,7 @@
     <div class="section-label">03 · CONTACT</div>
     <div class="section-title">联系方式</div>
     <div class="contact-grid">
-      <div class="contact-card tilt-card">
+      <div class="contact-card">
         <h3>找到我</h3>
         <div class="social-links">
           <a href="#" class="social-link">
@@ -996,7 +996,7 @@ const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     entry.target.classList.toggle('visible', entry.isIntersecting);
   });
-}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+}, { threshold: 0.1, rootMargin: '0px 0px 0px 0px' });
 
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
