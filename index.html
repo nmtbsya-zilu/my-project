@@ -180,7 +180,7 @@
   }
 
   /* ── Section ── */
-  section { padding: 60px 0; width: 100%; content-visibility: auto; contain-intrinsic-size: 500px; }
+  section { padding: 60px 0; width: 100%; }
   header.hero { width: 100%; }
   footer { width: 100%; }
   .section-label {
@@ -1228,17 +1228,23 @@ window.addEventListener('scroll', () => {
 });
 backToTop.addEventListener('click', () => scrollTo({ top: 0, behavior: 'smooth' }));
 
-// ── 3D Tilt effect ──
+// ── 3D Tilt effect (throttled) ──
 document.querySelectorAll('.tilt-card').forEach(card => {
+  let tiltPending = false;
   card.addEventListener('mousemove', (e) => {
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const midX = rect.width / 2;
-    const midY = rect.height / 2;
-    const rotateX = ((y - midY) / midY) * -6;
-    const rotateY = ((x - midX) / midX) * 6;
-    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    if (tiltPending) return;
+    tiltPending = true;
+    requestAnimationFrame(() => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const midX = rect.width / 2;
+      const midY = rect.height / 2;
+      const rotateX = ((y - midY) / midY) * -6;
+      const rotateY = ((x - midX) / midX) * 6;
+      card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      tiltPending = false;
+    });
   });
   card.addEventListener('mouseleave', () => {
     card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
