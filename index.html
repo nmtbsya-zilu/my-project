@@ -2,11 +2,10 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>小月</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
     background: #0a0e17;
@@ -14,7 +13,6 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
-
   canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
   .page {
@@ -24,26 +22,53 @@
   }
 
   /* Hero */
-  .hero {
-    text-align: center;
-    padding: 24px 0 28px;
+  .hero { text-align: center; padding: 24px 0 28px; }
+  .avatar-wrap {
+    display: inline-block; position: relative;
+    animation: avatarFloat 3s ease-in-out infinite;
+  }
+  @keyframes avatarFloat {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-6px); }
+  }
+  .avatar-ring {
+    position: absolute; inset: -4px; border-radius: 50%;
+    background: linear-gradient(135deg, #06b6d4, #7c3aed);
+    animation: ringPulse 2s ease-in-out infinite;
+  }
+  @keyframes ringPulse {
+    0%,100% { opacity: 0.6; transform: scale(1); }
+    50%     { opacity: 1; transform: scale(1.06); }
   }
   .avatar {
-    width: 80px; height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 0 40px rgba(6, 182, 212, 0.3);
-    border: 2px solid rgba(6, 182, 212, 0.4);
+    width: 80px; height: 80px; border-radius: 50%;
+    object-fit: cover; display: block; position: relative; z-index: 1;
+    border: 3px solid #0a0e17;
   }
+
   .hero h1 {
-    font-size: 26px; font-weight: 700;
-    color: #f1f5f9;
-    margin-top: 14px;
+    font-size: 28px; font-weight: 700;
+    background: linear-gradient(135deg, #06b6d4, #7c3aed, #06b6d4);
+    background-size: 200% 200%;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    animation: gradShift 3s ease infinite;
+    margin-top: 16px;
   }
-  .hero .sub {
-    font-size: 14px; color: #06b6d4;
-    margin-top: 4px;
+  @keyframes gradShift {
+    0%,100% { background-position: 0% 50%; }
+    50%     { background-position: 100% 50%; }
   }
+  .hero .sub { font-size: 14px; color: #06b6d4; margin-top: 6px; }
+
+  /* Stats */
+  .stats { display: flex; justify-content: center; gap: 32px; margin-top: 18px; }
+  .stat { text-align: center; }
+  .stat .num {
+    font-size: 24px; font-weight: 700;
+    background: linear-gradient(135deg, #06b6d4, #7c3aed);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat .label { font-size: 11px; color: #64748b; margin-top: 2px; }
 
   /* Card */
   .card {
@@ -53,14 +78,24 @@
     padding: 20px;
     margin-bottom: 16px;
     backdrop-filter: blur(10px);
+    opacity: 0; transform: translateY(24px);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative; overflow: hidden;
   }
+  .card.visible { opacity: 1; transform: translateY(0); }
   .card h3 {
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: #06b6d4;
-    margin-bottom: 14px;
+    font-size: 13px; text-transform: uppercase; letter-spacing: 2px;
+    color: #06b6d4; margin-bottom: 14px;
   }
+
+  /* Ripple */
+  .ripple {
+    position: absolute; border-radius: 50%;
+    background: rgba(6, 182, 212, 0.25);
+    transform: scale(0); animation: ripple 0.6s ease-out;
+    pointer-events: none;
+  }
+  @keyframes ripple { to { transform: scale(4); opacity: 0; } }
 
   /* Info rows */
   .row {
@@ -69,65 +104,61 @@
     border-bottom: 1px solid rgba(255,255,255,0.04);
   }
   .row:last-child { border-bottom: none; }
-  .row .icon {
-    font-size: 18px; width: 32px; text-align: center;
-    flex-shrink: 0;
-  }
+  .row .icon { font-size: 18px; width: 32px; text-align: center; flex-shrink: 0; }
   .row .label { font-size: 12px; color: #64748b; }
   .row .value { font-size: 14px; color: #cbd5e1; }
 
   /* Tags */
-  .tags {
-    display: flex; flex-wrap: wrap;
-    gap: 8px;
-  }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
   .tag {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    border: 1px solid #1e293b;
+    padding: 5px 14px; border-radius: 20px;
+    font-size: 12px; border: 1px solid #1e293b;
     color: #94a3b8;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tag:active {
+    border-color: #06b6d4; color: #06b6d4;
+    background: rgba(6,182,212,0.1);
+    transform: scale(1.08);
   }
 
   /* Certs */
   .cert-row {
     display: flex; gap: 10px;
-    overflow-x: auto;
-    padding-bottom: 8px;
+    overflow-x: auto; padding-bottom: 8px;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x mandatory;
   }
   .cert-row img {
-    width: 140px; height: auto;
-    border-radius: 8px;
-    cursor: pointer;
-    scroll-snap-align: start;
+    width: 140px; height: auto; border-radius: 8px;
+    cursor: pointer; scroll-snap-align: start;
     border: 1px solid #1e293b;
-    transition: transform 0.2s;
+    transition: transform 0.3s;
   }
-  .cert-row img:active { transform: scale(1.02); }
+  .cert-row img:active { transform: scale(1.03); }
 
   /* Contact buttons */
-  .btns {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
+  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .btn {
     display: flex; align-items: center; justify-content: center;
-    gap: 6px; padding: 12px;
-    border-radius: 10px; border: 1px solid #1e293b;
-    text-decoration: none; color: #cbd5e1;
-    font-size: 13px;
-    transition: all 0.2s;
+    gap: 6px; padding: 13px; border-radius: 10px;
+    border: 1px solid #1e293b; text-decoration: none;
+    color: #cbd5e1; font-size: 13px;
+    transition: all 0.2s; position: relative; overflow: hidden;
     background: rgba(255,255,255,0.02);
+    -webkit-tap-highlight-color: transparent;
   }
-  .btn:active { border-color: #06b6d4; background: rgba(6,182,212,0.08); }
+  .btn:active { border-color: #06b6d4; background: rgba(6,182,212,0.1); transform: scale(0.96); }
 
   /* Lightbox */
   .lb {
     display: none; position: fixed; inset: 0; z-index: 999;
     background: rgba(0,0,0,0.92); align-items: center; justify-content: center;
+    animation: fadeIn 0.2s;
   }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   .lb.show { display: flex; }
   .lb img { max-width: 92vw; max-height: 85vh; border-radius: 8px; }
   .lb .close {
@@ -135,10 +166,7 @@
     font-size: 32px; color: #fff; cursor: pointer;
   }
 
-  .footer {
-    text-align: center; padding: 20px 0;
-    font-size: 12px; color: #475569;
-  }
+  .footer { text-align: center; padding: 20px 0; font-size: 12px; color: #475569; }
 </style>
 </head>
 <body>
@@ -148,9 +176,17 @@
 <div class="page">
 
   <div class="hero">
-    <img class="avatar" src="avatar.jpg" alt="头像">
+    <div class="avatar-wrap">
+      <div class="avatar-ring"></div>
+      <img class="avatar" src="avatar.jpg" alt="头像">
+    </div>
     <h1>小月</h1>
     <div class="sub">测控技术与仪器 · 大三在读</div>
+    <div class="stats">
+      <div class="stat"><div class="num" data-to="6" data-suf="+">0</div><div class="label">国家级奖项</div></div>
+      <div class="stat"><div class="num" data-to="5" data-suf="+">0</div><div class="label">省级奖项</div></div>
+      <div class="stat"><div class="num" data-to="3" data-suf="+">0</div><div class="label">校级奖项</div></div>
+    </div>
   </div>
 
   <div class="card">
@@ -268,11 +304,56 @@ function draw() {
 }
 draw();
 
+// Scroll reveal cards
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+document.querySelectorAll('.card').forEach(c => observer.observe(c));
+// Trigger first card immediately
+setTimeout(() => {
+  const first = document.querySelector('.card');
+  if (first) first.classList.add('visible');
+}, 200);
+
+// Counter animation
+function animateCounter(el) {
+  const to = parseInt(el.dataset.to), suf = el.dataset.suf || '';
+  const dur = 1500, start = performance.now();
+  function tick(now) {
+    const p = Math.min((now - start) / dur, 1);
+    const v = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(v * to) + suf;
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+const co = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { animateCounter(e.target); co.unobserve(e.target); } });
+}, { threshold: 0.6 });
+document.querySelectorAll('.num[data-to]').forEach(n => co.observe(n));
+// Fire first render
+setTimeout(() => document.querySelectorAll('.num[data-to]').forEach(n => animateCounter(n)), 600);
+
+// Ripple effect on buttons
+document.querySelectorAll('.btn,.tag').forEach(el => {
+  el.addEventListener('pointerdown', function(e) {
+    const rect = this.getBoundingClientRect();
+    const ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    const size = Math.max(rect.width, rect.height);
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+    ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+    this.appendChild(ripple);
+    ripple.addEventListener('animationend', () => ripple.remove());
+  });
+});
+
 // Lightbox
 const lb = document.getElementById('lb');
 const lbImg = document.getElementById('lb-img');
-function openLb(src) { lbImg.src = src; lb.classList.add('show'); }
-function closeLb() { lb.classList.remove('show'); }
+function openLb(src) { lbImg.src = src; lb.classList.add('show'); document.body.style.overflow = 'hidden'; }
+function closeLb() { lb.classList.remove('show'); document.body.style.overflow = ''; }
 </script>
 
 </body>
