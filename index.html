@@ -27,7 +27,7 @@
     overflow-x: hidden;
   }
 
-  /* Grid background */
+  /* Classical texture background */
   body::before {
     content: "";
     position: fixed;
@@ -35,19 +35,19 @@
     background-image:
       linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
       linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
-    background-size: 60px 60px;
+    background-size: 80px 80px;
     pointer-events: none;
     z-index: 0;
   }
 
-  /* Glow orbs */
+  /* Warm glow orb */
   body::after {
     content: "";
     position: fixed;
     width: 600px; height: 600px;
     border-radius: 50%;
     filter: blur(180px);
-    background: var(--cyan);
+    background: #06b6d4;
     opacity: 0.05;
     top: -200px; left: -200px;
     pointer-events: none;
@@ -198,7 +198,7 @@
     align-items: center;
     gap: 12px;
     padding: 14px 16px;
-    background: rgba(255,255,255,0.02);
+    background: rgba(255, 255, 255, 0.02);
     border-radius: 10px;
     border: 1px solid var(--border);
   }
@@ -237,7 +237,7 @@
     font-weight: 500;
     border: 1px solid var(--border);
     color: var(--text);
-    background: rgba(255,255,255,0.02);
+    background: rgba(255, 255, 255, 0.02);
     transition: all 0.2s;
   }
   .skill-tag:hover {
@@ -441,9 +441,9 @@
     pointer-events: all;
   }
   #back-to-top:hover {
-    border-color: var(--cyan);
+    border-color: var(--purple);
     color: var(--cyan);
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.1);
   }
 
   /* ── 3D Tilt base ── */
@@ -467,7 +467,7 @@
     transition: all 0.3s;
   }
   .cert-card:hover {
-    border-color: var(--cyan);
+    border-color: var(--purple);
     transform: translateY(-4px);
     box-shadow: 0 8px 30px rgba(6, 182, 212, 0.15);
   }
@@ -483,7 +483,7 @@
     position: fixed;
     inset: 0;
     z-index: 1000;
-    background: rgba(0, 0, 0, 0.92);
+    background: rgba(0, 0, 0, 0.85);
     align-items: center;
     justify-content: center;
   }
@@ -547,12 +547,23 @@
   }
   .float-char {
     display: inline-block;
-    animation: charFloat 3s ease-in-out infinite;
     background: var(--gradient);
     background-size: 200% 200%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: charFloat 3s ease-in-out infinite, charGradient 4s ease infinite;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s;
+    cursor: default;
+  }
+  .float-char:hover {
+    animation: charFloat 3s ease-in-out infinite, charGradient 4s ease infinite, charBounce 0.4s ease;
+    filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.7));
+  }
+  @keyframes charBounce {
+    0%   { transform: translateY(0) scale(1); }
+    40%  { transform: translateY(-20px) scale(1.25); }
+    70%  { transform: translateY(8px) scale(0.92); }
+    100% { transform: translateY(0) scale(1); }
   }
 
   @keyframes slideDown {
@@ -625,7 +636,7 @@
     .nav-links a { font-size: 18px; }
     .nav-overlay {
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.3);
       z-index: 98;
       opacity: 0; pointer-events: none;
       transition: opacity 0.3s;
@@ -1072,11 +1083,11 @@ document.querySelectorAll('.hero .stat').forEach(stat => {
   }
 });
 
-// ── Particle canvas background ──
+// ── Snowfall canvas background ──
 const canvas = document.getElementById('particle-canvas');
 const ctx = canvas.getContext('2d');
-let particles = [];
-const particleCount = 60;
+let snowflakes = [];
+const snowCount = 80;
 
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -1085,58 +1096,43 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener('resize', () => {
   resizeCanvas();
-  initParticles();
+  initSnow();
 });
 
-function initParticles() {
-  particles = [];
-  for (let i = 0; i < particleCount; i++) {
-    particles.push({
+function initSnow() {
+  snowflakes = [];
+  for (let i = 0; i < snowCount; i++) {
+    snowflakes.push({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      r: Math.random() * 1.5 + 0.5,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      opacity: Math.random() * 0.5 + 0.1
+      r: Math.random() * 3 + 1,
+      vy: Math.random() * 0.6 + 0.2,
+      vx: (Math.random() - 0.5) * 0.3,
+      opacity: Math.random() * 0.5 + 0.2,
+      wobble: Math.random() * Math.PI * 2
     });
   }
 }
-initParticles();
+initSnow();
 
-function drawLine(a, b) {
-  const dx = a.x - b.x;
-  const dy = a.y - b.y;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  if (dist < 120) {
-    ctx.beginPath();
-    ctx.moveTo(a.x, a.y);
-    ctx.lineTo(b.x, b.y);
-    ctx.strokeStyle = `rgba(6, 182, 212, ${0.06 * (1 - dist / 120)})`;
-    ctx.lineWidth = 0.5;
-    ctx.stroke();
-  }
-}
-
-function animateParticles() {
+function animateSnow() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  particles.forEach((p, i) => {
-    p.x += p.vx;
-    p.y += p.vy;
-    if (p.x < 0) p.x = canvas.width;
-    if (p.x > canvas.width) p.x = 0;
-    if (p.y < 0) p.y = canvas.height;
-    if (p.y > canvas.height) p.y = 0;
+  snowflakes.forEach(s => {
+    s.wobble += 0.005;
+    s.x += s.vx + Math.sin(s.wobble) * 0.2;
+    s.y += s.vy;
+    if (s.y > canvas.height + 5) { s.y = -5; s.x = Math.random() * canvas.width; }
+    if (s.x < -5) s.x = canvas.width + 5;
+    if (s.x > canvas.width + 5) s.x = -5;
+
     ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(6, 182, 212, ${p.opacity})`;
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(6, 182, 212, ${s.opacity})`;
     ctx.fill();
-    for (let j = i + 1; j < particles.length; j++) {
-      drawLine(p, particles[j]);
-    }
   });
-  requestAnimationFrame(animateParticles);
+  requestAnimationFrame(animateSnow);
 }
-animateParticles();
+animateSnow();
 
 // ── Scroll progress bar ──
 const progressBar = document.getElementById('progress-bar');
