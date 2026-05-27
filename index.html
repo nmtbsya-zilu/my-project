@@ -92,20 +92,21 @@
     padding: 12px 24px;
   }
   .logo {
-    font-size: 22px;
+    font-size: 15px;
     font-weight: 700;
     color: var(--heading);
-    letter-spacing: -0.5px;
+    letter-spacing: 3px;
   }
   .logo span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links { display: flex; gap: 40px; list-style: none; }
   .nav-links a {
     color: var(--text-muted);
     text-decoration: none;
-    font-size: 14px;
+    font-size: 13px;
+    letter-spacing: 1px;
     transition: color 0.2s;
   }
-  .nav-links a:hover { color: var(--cyan); }
+  .nav-links a:hover, .nav-links a.active { color: var(--cyan); }
 
   /* ── Hero ── */
   .hero {
@@ -134,12 +135,10 @@
     50%     { box-shadow: 0 0 80px rgba(6, 182, 212, 0.35); }
   }
   .hero h1 {
-    font-size: clamp(48px, 8vw, 80px);
-    font-weight: 900;
-    background: linear-gradient(180deg, #ffffff 0%, #90b8d0 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    letter-spacing: -2px; line-height: 1.1;
-    margin-bottom: 16px;
+    font-size: 42px; font-weight: 800;
+    color: var(--heading);
+    letter-spacing: -1px;
+    margin-bottom: 12px;
   }
   .hero-tag {
     font-size: 11px; letter-spacing: 4px;
@@ -600,7 +599,7 @@
   }
   .float-char {
     display: inline-block;
-    background: linear-gradient(180deg, #ffffff 0%, #90b8d0 100%);
+    background: var(--gradient);
     background-size: 200% 200%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -610,7 +609,7 @@
   }
   .float-char:hover {
     animation: charFloat 3s ease-in-out infinite, charGradient 4s ease infinite, charBounce 0.4s ease;
-    filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.4));
+    filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.7));
   }
   @keyframes charBounce {
     0%   { transform: translateY(0) scale(1); }
