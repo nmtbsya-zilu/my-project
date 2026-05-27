@@ -72,19 +72,26 @@
 
   /* ── Navigation ── */
   nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 24px 0;
     position: sticky; top: 0; z-index: 50;
     transition: all 0.3s;
+    width: 100%;
   }
   nav.scrolled {
     background: rgba(10, 14, 23, 0.85);
     backdrop-filter: blur(16px);
-    padding: 14px 20px;
-    margin: 0 -20px;
     border-bottom: 1px solid rgba(6, 182, 212, 0.1);
+  }
+  .nav-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 948px;
+    margin: 0 auto;
+    padding: 24px 24px;
+    transition: padding 0.3s;
+  }
+  nav.scrolled .nav-inner {
+    padding: 12px 24px;
   }
   .logo {
     font-size: 22px;
@@ -725,11 +732,10 @@
 <button id="back-to-top" title="回到顶部">&#8593;</button>
 <div class="section-dots" id="section-dots"></div>
 
-<div class="container">
-
   <!-- Navigation -->
   <nav>
-    <div class="logo">&lt;<span>XP</span>/&gt;</div>
+    <div class="nav-inner">
+    <div class="logo">&lt;<span>ZILU</span>/&gt;</div>
     <button class="menu-btn" id="menu-btn" aria-label="菜单">
       <span></span><span></span><span></span>
     </button>
@@ -739,8 +745,12 @@
       <li><a href="#contact">联系</a></li>
       <li><a href="#certificates">证书</a></li>
     </ul>
+      </div>
   </nav>
   <div class="nav-overlay" id="nav-overlay"></div>
+
+<div class="container">
+
 
   <!-- Hero -->
   <header class="hero">
